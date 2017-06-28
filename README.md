@@ -4,6 +4,7 @@ preCICE-adapter for SU2 - "Stanford University Unstructured"
 The adapter for the CFD-Code was developed in the scope of the [bachelor's thesis of Alexander Rusch](https://www5.in.tum.de/pub/Rusch2016_BA.pdf).
 All steps for integrating the adapter into SU2 are described in detail in the appendices of the thesis.
 The most important parts of these appendices can be found in this directory as excerpts (in PDF-format).
+The adapter was tested with the SU2 version 4.3.0 "Cardinal".
 
 1. Adapting solver routines of SU2:
 -----------------------------------
