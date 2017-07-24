@@ -6,7 +6,7 @@
 
 
 
-#include "precice/SolverInterface.hpp"
+#include "SolverInterface.hpp"
 #include "SU2_CFD.hpp"
 #include <string>
 #include <stdlib.h>

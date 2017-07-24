@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# This auxiliary script simplifies the installation of the preCICE-adapter for SU2. It copies the adapted SU2-files to the correct locations based on the environment variables PRECICE_ROOT and SU2_HOME.
+# Author: Alexander Rusch
+
+printf "Checking whether the necessary environment variables are set...\n"
+"${PRECICE_ROOT:?You need to set variable PRECICE_ROOT non-empty}"
+"${SU2_HOME:?You need to set variable SU2_HOME non-empty}"
+printf "\n"
+
+printf "Replacing original SU2 files with preCICE-adapter conforming files...\n\n"
+cp ./replacement_files/config_structure.cpp $SU2_HOME/Common/src
+cp ./replacement_files/config_structure.hpp $SU2_HOME/Common/include
+cp ./replacement_files/config_structure.inl $SU2_HOME/Common/include
+cp ./replacement_files/option_structure.hpp $SU2_HOME/Common/include
+cp ./replacement_files/iteration_structure.cpp $SU2_HOME/SU2_CFD/src
+cp ./replacement_files/SU2_CFD.cpp $SU2_HOME/SU2_CFD/src
+
+printf "Adding preCICE adapter files...\n\n"
+cp ./adapter_files/precice.cpp $SU2_HOME/SU2_CFD/src
+cp ./adapter_files/precice.hpp $SU2_HOME/SU2_CFD/include
+
+printf "Replacing original SU2 Makefile with preCICE-adapter conforming Makefile...\n\n"
+cp ./replacement_files/Makefile.am $SU2_HOME/SU2_CFD/obj
+
+printf "Please navigate to the SU2 home directory $SU2_HOME to configure and build SU2 as described in its installation description.\n"
+
+printf "Please enable MPI when configuring SU2.\n\n"
+
+printf "A sample SU2 configure procedure might look like: ./configure --prefix=\$SU2_HOME --enable-mpi --with-mpicc=mpicc --with-mpicxx=mpicxx\n"
+printf "A sample SU2 make procedure might look like: make -j 4\n\n"
+
+printf "Adapter installation completed.\n"

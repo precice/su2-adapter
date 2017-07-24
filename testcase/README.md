@@ -1,4 +1,4 @@
-# Running the fluid-structure interaction testcase with SU2
+# Running the Fluid-Structure Interaction Testcase with SU2
 
 1. Run the start-solution configuration file, which computes a fluid-only solution for 5s of physical time with a time step size of 0.01 s:
 ```
