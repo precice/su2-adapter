@@ -3,7 +3,7 @@
 
 The adapter for the CFD-Code "Stanford University Unstructured" (SU2) was developed in the scope of the [bachelor's thesis of Alexander Rusch](https://www5.in.tum.de/pub/Rusch2016_BA.pdf).
 All steps for integrating the adapter into SU2 are described in detail in the appendices of the thesis. Note that by now, the adapter has been extended with new functionalities, which are not covered in the thesis. However, the basic structure of the adapter has remained unchanged and can be studied by means of this work.
-This adapter was initially developed for SU2 version 4.0.2 "Cardinal" and has been successfully tested with subsequent versions up to 4.2.0 "Cardinal". Other versions may be compatible, yet they have not been tested. Please let us know if you want to use a different version.
+This adapter was initially developed for SU2 version 4.0.2 "Cardinal" and has been successfully tested with subsequent versions up to 4.1.0 "Cardinal". Other versions may be compatible, yet they have not been tested. Please let us know if you want to use a different version.
 
 ## Contents
 <!-- toc orderedList:0 -->
@@ -44,6 +44,8 @@ It is recommended to set these variables permanently in your ~/.bashrc (Linux) o
 The script will not execute if the environment variables are unset or empty.
 
 If you do not want to use this script, manually copy the files to the locations given in it. The two environment variables need to be defined as stated above, nevertheless.
+
+Note that the automake/autoconf tools are required to install the adapter. If they are not available, the adapter installation script aborts and points out the requested tools.
 
 After copying the adapter files to the correct locations within the SU2 package, SU2 can be configured and built just like the original version of the solver suite. Please refer to the installation instructions provided with the SU2 source code. SU2 should be built with MPI support in order to make use of parallel functionalities. The script *su2AdapterInstall* states recommended command sequences for both the configuration and the building process upon completion of the execution.
 

@@ -4,30 +4,46 @@
 # Author: Alexander Rusch
 
 printf "\nChecking whether the necessary environment variables are set...\n"
-"${PRECICE_ROOT:?You need to set variable PRECICE_ROOT non-empty}"
-"${SU2_HOME:?You need to set variable SU2_HOME non-empty}"
-printf "\n"
+"${PRECICE_ROOT:?You need to set variable PRECICE_ROOT non-empty.}"
+"${SU2_HOME:?You need to set variable SU2_HOME non-empty.}"
+printf "Necessary environment variables are set.\n"
 
-printf "Replacing original SU2 files with preCICE-adapter conforming files...\n\n"
+printf "\nChecking whether the necessary tools are available..."
+command -v make >/dev/null 2>&1 || { printf >&2 "\nThe command \"make\" is needed. Please install a respective package and try again. Aborting."; exit 1; }
+command -v autoreconf >/dev/null 2>&1 || { printf >&2 "\nThe command \"autoreconf\" is needed. Please install a respective package and try again. Aborting."; exit 1; }
+command -v autoconf >/dev/null 2>&1 || { printf >&2 "\nThe command \"autoconf\" is needed. Please install a respective package and try again. Aborting."; exit 1; }
+command -v aclocal >/dev/null 2>&1 || { printf >&2 "\nThe command \"aclocal\" is needed. Please install a respective package and try again. Aborting."; exit 1; }
+command -v automake >/dev/null 2>&1 || { printf >&2 "\nThe command \"automake\" is needed. Please install a respective package and try again. Aborting."; exit 1; }
+printf " yes.\n\n"
+
+printf "Replacing original SU2 files with preCICE-adapter conforming files..."
 cp ./replacement_files/config_structure.cpp $SU2_HOME/Common/src
 cp ./replacement_files/config_structure.hpp $SU2_HOME/Common/include
 cp ./replacement_files/config_structure.inl $SU2_HOME/Common/include
 cp ./replacement_files/option_structure.hpp $SU2_HOME/Common/include
 cp ./replacement_files/iteration_structure.cpp $SU2_HOME/SU2_CFD/src
 cp ./replacement_files/SU2_CFD.cpp $SU2_HOME/SU2_CFD/src
+printf " done.\n\n"
 
-printf "Adding preCICE adapter files...\n\n"
+printf "Adding preCICE adapter files..."
 cp ./adapter_files/precice.cpp $SU2_HOME/SU2_CFD/src
 cp ./adapter_files/precice.hpp $SU2_HOME/SU2_CFD/include
+printf " done.\n\n"
 
-printf "Replacing original SU2 Makefile with preCICE-adapter conforming Makefile...\n\n"
+printf "Replacing original SU2 Makefile with preCICE-adapter conforming Makefile..."
 cp ./replacement_files/Makefile.am $SU2_HOME/SU2_CFD/obj
+printf " done.\n\n"
 
-printf "Please navigate to the SU2 home directory $SU2_HOME to configure and build SU2 as described in its installation description.\n"
+printf "Autoreconfiguring due to the changed Makefile...\n\n"
+cd $SU2_HOME
+autoreconf
+printf "\nAutoreconfiguring done.\n\n"
+
+printf "\nPlease navigate to the SU2 home directory $SU2_HOME to configure and build SU2 as described in its installation description.\n"
 
 printf "Please enable MPI when configuring SU2.\n\n"
 
-printf "A sample SU2 configure procedure might look like: ./configure --prefix=\$SU2_HOME --enable-mpi --with-mpicc=mpicc --with-mpicxx=mpicxx\n"
+printf "A sample SU2 configure procedure might look like: ./configure --prefix=\$SU2_HOME --enable-mpi\n"
 printf "A sample SU2 make procedure might look like: make -j 4\n\n"
 
 printf "For Linux-users: Please add the following line to your ~/.bashrc (for more information refer to the adapter README).\n"
