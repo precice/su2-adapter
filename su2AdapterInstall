@@ -3,7 +3,7 @@
 # This auxiliary script simplifies the installation of the preCICE-adapter for SU2. It copies the adapted SU2-files to the correct locations based on the environment variables PRECICE_ROOT and SU2_HOME.
 # Author: Alexander Rusch
 
-printf "Checking whether the necessary environment variables are set...\n"
+printf "\nChecking whether the necessary environment variables are set...\n"
 "${PRECICE_ROOT:?You need to set variable PRECICE_ROOT non-empty}"
 "${SU2_HOME:?You need to set variable SU2_HOME non-empty}"
 printf "\n"
@@ -30,4 +30,10 @@ printf "Please enable MPI when configuring SU2.\n\n"
 printf "A sample SU2 configure procedure might look like: ./configure --prefix=\$SU2_HOME --enable-mpi --with-mpicc=mpicc --with-mpicxx=mpicxx\n"
 printf "A sample SU2 make procedure might look like: make -j 4\n\n"
 
-printf "Adapter installation completed.\n"
+printf "For Linux-users: Please add the following line to your ~/.bashrc (for more information refer to the adapter README).\n"
+printf "export LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH:\$PRECICE_ROOT/build/last\"\n\n"
+
+printf "For Mac-users: Please add the following line to your ~/.bash_profile (for more information refer to the adapter README).\n"
+printf "export DYLD_LIBRARY_PATH=\"\$DYLD_LIBRARY_PATH:\$PRECICE_ROOT/build/last\"\n\n"
+
+printf "Adapter installation completed.\n\n"
