@@ -43,7 +43,7 @@ printf "\nPlease navigate to the SU2 home directory $SU2_HOME to configure and b
 
 printf "Please enable MPI when configuring SU2.\n\n"
 
-printf "A sample SU2 configure procedure might look like: ./configure --prefix=\$SU2_HOME --enable-mpi CXXFLAGS=-std=c++11\n"
+printf "A sample SU2 configure procedure might look like: ./configure --prefix=\$SU2_HOME --enable-mpi --with-cc=mpicc --with-cxx=mpicxx\n"
 printf "A sample SU2 make procedure might look like: make -j 4\n\n"
 
 printf "For Linux-users: Please add the following line to your ~/.bashrc (for more information refer to the adapter README).\n"
