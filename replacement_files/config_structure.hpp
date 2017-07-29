@@ -3,7 +3,7 @@
  * \brief All the information about the definition of the physical problem.
  *        The subroutines and functions are in the <i>config_structure.cpp</i> file.
  * \author F. Palacios, T. Economon, B. Tracey
- * \version 4.1.1 "Cardinal"
+ * \version 4.1.2 "Cardinal"
  *
  * SU2 Lead Developers: Dr. Francisco Palacios (Francisco.D.Palacios@boeing.com).
  *                      Dr. Thomas D. Economon (economon@stanford.edu).
@@ -55,7 +55,7 @@ using namespace std;
  * \brief Main class for defining the problem; basically this class reads the configuration file, and
  *        stores all the information.
  * \author F. Palacios
- * \version 4.1.1 "Cardinal"
+ * \version 4.1.2 "Cardinal"
  */
 
 class CConfig {
@@ -430,11 +430,10 @@ private:
 	AoS;				/*!< \brief Angle of sideSlip (just external flow). */
   bool Fixed_CL_Mode;			/*!< \brief Activate fixed CL mode (external flow only). */
   su2double Target_CL;			/*!< \brief Specify a target CL instead of AoA (external flow only). */
-  su2double Damp_Fixed_CL;			/*!< \brief Damping coefficient for fixed CL mode (external flow only). */
+  su2double dCl_dAlpha;			/*!< \brief Lift curve slope for fixed CL mode (1/deg, external flow only). */
   unsigned long Iter_Fixed_CL;			/*!< \brief Iterations to re-evaluate the angle of attack (external flow only). */
   bool Update_AoA;			/*!< \brief Boolean flag for whether to update the AoA for fixed lift mode on a given iteration. */
 	su2double ChargeCoeff;		/*!< \brief Charge coefficient (just for poisson problems). */
-	su2double *U_FreeStreamND;			/*!< \brief Reference variables at the infinity, free stream values. */
 	unsigned short Cauchy_Func_Flow,	/*!< \brief Function where to apply the convergence criteria in the flow problem. */
 	Cauchy_Func_AdjFlow,				/*!< \brief Function where to apply the convergence criteria in the adjoint problem. */
 	Cauchy_Elems;						/*!< \brief Number of elements to evaluate. */
@@ -707,7 +706,7 @@ private:
   bool ParMETIS;      /*!< \brief Boolean for activating ParMETIS mode (while testing). */
   unsigned short DirectDiff; /*!< \brief Direct Differentation mode. */
   bool DiscreteAdjoint; /*!< \brief AD-based discrete adjoint mode. */
-    
+
   //preCICE
   bool precice_usage;	/*!< \brief Usage of preCICE for FSI simulations */
   bool precice_verbosityLevel_high;	/*!< \brief Verbosity level of the preCICE adapter for FSI simulations */
@@ -716,7 +715,6 @@ private:
   unsigned long precice_numberWetSurfaces; /*!< \brief Number of different wet surfaces */
   string preciceConfigFileName;	/*!< \brief Name of the preCICE configuration file */
   string preciceWetSurfaceMarkerName;	/*!< \brief Name of the wet surface marker (from the mesh file) that the preCICE adapter will use for identification of the wet surface */
-
   
   /*--- all_options is a map containing all of the options. This is used during config file parsing
   to track the options which have not been set (so the default values can be used). Without this map
@@ -5235,10 +5233,10 @@ public:
 	su2double GetTarget_CL(void);
 
   /*!
-	 * \brief Get the value of the damping coefficient for fixed CL mode.
-	 * \return Damping coefficient for fixed CL mode.
+	 * \brief Get the value for the lift curve slope for fixed CL mode.
+	 * \return Lift curve slope for fixed CL mode.
 	 */
-	su2double GetDamp_Fixed_CL(void);
+	su2double GetdCl_dAlpha(void);
   
   /*!
    * \brief Get the value of iterations to re-evaluate the angle of attack.
@@ -5557,6 +5555,7 @@ public:
      * \return Number of wet surfaces
      */
     unsigned long GetpreCICE_NumberWetSurfaces(void);
+    
 };
 
 #include "config_structure.inl"

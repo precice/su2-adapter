@@ -2,7 +2,7 @@
  * \file SU2_CFD.cpp
  * \brief Main file of the Computational Fluid Dynamics code
  * \author F. Palacios, T. Economon
- * \version 4.1.1 "Cardinal"
+ * \version 4.1.2 "Cardinal"
  *
  * SU2 Lead Developers: Dr. Francisco Palacios (Francisco.D.Palacios@boeing.com).
  *                      Dr. Thomas D. Economon (economon@stanford.edu).
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
   
   nZone = GetnZone(config->GetMesh_FileName(), config->GetMesh_FileFormat(), config);
   nDim  = GetnDim(config->GetMesh_FileName(), config->GetMesh_FileFormat());
-  
+  delete config;
   /*--- Definition and of the containers for all possible zones. ---*/
   
   iteration_container    = new CIteration*[nZone];
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
      between the ranks. ---*/
     
     geometry_container[iZone] = new CGeometry *[config_container[iZone]->GetnMGLevels()+1];
-    geometry_container[iZone][MESH_0] = new CPhysicalGeometry(geometry_aux, config_container[iZone], 1);
+    geometry_container[iZone][MESH_0] = new CPhysicalGeometry(geometry_aux, config_container[iZone]);
     
     /*--- Deallocate the memory of geometry_aux ---*/
     
@@ -351,7 +351,7 @@ int main(int argc, char *argv[]) {
       dt = min(max_precice_dt,dt);
       config_container[ZONE_0]->SetDelta_UnstTimeND(*dt);
     }
-      
+    
     /*--- Set the value of the external iteration. ---*/
 	for (iZone = 0; iZone < nZone; iZone++) config_container[iZone]->SetExtIter(ExtIter);
 
@@ -434,7 +434,7 @@ int main(int argc, char *argv[]) {
       case DISC_ADJ_EULER: case DISC_ADJ_NAVIER_STOKES: case DISC_ADJ_RANS:
         StopCalc = integration_container[ZONE_0][ADJFLOW_SOL]->GetConvergence(); break;
     }
-    
+      
     //preCICE - Advancing
     if(precice_usage){
       *max_precice_dt = precice->advance(*dt);
@@ -446,7 +446,7 @@ int main(int argc, char *argv[]) {
       ExtIter--;
       precice->reloadOldState(&StopCalc, dt);
     }
-      
+    
 		/*--- Solution output. Determine whether a solution needs to be written
 		 after the current iteration, and if so, execute the output file writing
 		 routines. ---*/
@@ -547,16 +547,57 @@ int main(int argc, char *argv[]) {
     cout << "History file, closed." << endl;
   }
   
-  //  /*--- Deallocate config container ---*/
-  //
-  //  for (iZone = 0; iZone < nZone; iZone++) {
-  //    if (config_container[iZone] != NULL) {
-  //      delete config_container[iZone];
-  //    }
-  //  }
-  //  if (config_container != NULL) delete[] config_container;
-  
-  
+  /*--- Deallocations: further work is needed,
+   * these routines can be used to check for memory leaks---*/
+  /*
+  if (rank == MASTER_NODE)
+      cout << endl <<"------------------------ Driver Postprocessing ------------------------" << endl;
+
+  driver->Postprocessing(iteration_container, solver_container, geometry_container,
+      integration_container, numerics_container, interpolator_container,
+      transfer_container, config_container, nZone);
+
+  delete driver;
+  */
+
+  /*--- Geometry class deallocation ---*/
+  if (rank == MASTER_NODE)
+        cout << endl <<"------------------------ Geometry Postprocessing ------------------------" << endl;
+  for (iZone = 0; iZone < nZone; iZone++) {
+    if (geometry_container[iZone]!=NULL){
+      for (unsigned short iMGlevel = 1; iMGlevel < config_container[iZone]->GetnMGLevels()+1; iMGlevel++){
+        if (geometry_container[iZone][iMGlevel]!=NULL) delete geometry_container[iZone][iMGlevel];
+      }
+      delete [] geometry_container[iZone];
+    }
+  }
+  delete [] geometry_container;
+
+  /*--- Free-form deformation class deallocation ---*/
+  for (iZone = 0; iZone < nZone; iZone++) {
+    delete FFDBox[iZone];
+  }
+  delete [] FFDBox;
+
+  /*--- Grid movement and surface movement class deallocation ---*/
+  delete [] surface_movement;
+  delete [] grid_movement;
+
+  /*Deallocate config container*/
+  if (rank == MASTER_NODE)
+        cout << endl <<"------------------------ Config Postprocessing ------------------------" << endl;
+  if (config_container!=NULL){
+    for (iZone = 0; iZone < nZone; iZone++) {
+      if (config_container[iZone]!=NULL){
+        delete config_container[iZone];
+      }
+    }
+    delete [] config_container;
+  }
+
+  /*--- Deallocate output container ---*/
+  if (output!=NULL) delete output;
+
   /*--- Synchronization point after a single solver iteration. Compute the
    wall clock time required. ---*/
   
@@ -586,13 +627,13 @@ int main(int argc, char *argv[]) {
   
   if (rank == MASTER_NODE)
     cout << endl <<"------------------------- Exit Success (SU2_CFD) ------------------------" << endl << endl;
-  
+
 #ifdef HAVE_MPI
   /*--- Finalize MPI parallelization ---*/
   MPI_Buffer_detach(&bptr, &bl);
   MPI_Finalize();
 #endif
-  
+
   return EXIT_SUCCESS;
-  
+
 }
