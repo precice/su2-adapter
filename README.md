@@ -3,7 +3,7 @@
 
 The adapter for the CFD-Code "Stanford University Unstructured" (SU2) was developed in the scope of the [bachelor's thesis of Alexander Rusch](https://www5.in.tum.de/pub/Rusch2016_BA.pdf).
 All steps for integrating the adapter into SU2 are described in detail in the appendices of the thesis. Note that by now, the adapter has been extended with new functionalities, which are not covered in the thesis. However, the basic structure of the adapter has remained unchanged and can be studied by means of this work.
-This adapter was developed for SU2 version 4.1.3 "Cardinal". Other versions may be compatible, yet they have not been tested. Please let us know if you want to use a different version.
+This adapter was developed for SU2 version 4.2.0 "Cardinal". Other versions may be compatible, yet they have not been tested. Please let us know if you want to use a different version.
 
 ## Contents
 <!-- toc orderedList:0 -->

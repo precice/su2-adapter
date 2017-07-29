@@ -2,7 +2,7 @@
  * \file SU2_CFD.cpp
  * \brief Main file of the Computational Fluid Dynamics code
  * \author F. Palacios, T. Economon
- * \version 4.1.3 "Cardinal"
+ * \version 4.2.0 "Cardinal"
  *
  * SU2 Lead Developers: Dr. Francisco Palacios (Francisco.D.Palacios@boeing.com).
  *                      Dr. Thomas D. Economon (economon@stanford.edu).
@@ -259,7 +259,7 @@ int main(int argc, char *argv[]) {
           (config_container[iZone]->GetKind_Solver() == DISC_ADJ_RANS))
         geometry_container[iZone][MESH_0]->ComputeWall_Distance(config_container[iZone]);
     }
-    
+
     
   }
   
@@ -434,7 +434,7 @@ int main(int argc, char *argv[]) {
       case DISC_ADJ_EULER: case DISC_ADJ_NAVIER_STOKES: case DISC_ADJ_RANS:
         StopCalc = integration_container[ZONE_0][ADJFLOW_SOL]->GetConvergence(); break;
     }
-      
+    
     //preCICE - Advancing
     if(precice_usage){
       *max_precice_dt = precice->advance(*dt);
@@ -446,7 +446,7 @@ int main(int argc, char *argv[]) {
       ExtIter--;
       precice->reloadOldState(&StopCalc, dt);
     }
-    
+      
 		/*--- Solution output. Determine whether a solution needs to be written
 		 after the current iteration, and if so, execute the output file writing
 		 routines. ---*/
@@ -585,7 +585,7 @@ int main(int argc, char *argv[]) {
 
   /*Deallocate config container*/
   if (rank == MASTER_NODE)
-        cout << endl <<"------------------------ Config Postprocessing ------------------------" << endl;
+        cout << endl <<"------------------------- Config Postprocessing -------------------------" << endl;
   if (config_container!=NULL){
     for (iZone = 0; iZone < nZone; iZone++) {
       if (config_container[iZone]!=NULL){
@@ -622,6 +622,7 @@ int main(int argc, char *argv[]) {
     delete [] dt;
     delete [] max_precice_dt;
   }
+
     
   /*--- Exit the solver cleanly ---*/
   
