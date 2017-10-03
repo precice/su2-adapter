@@ -2,7 +2,7 @@
 
 # This auxiliary script simplifies the installation of the preCICE-adapter for SU2. It copies the adapted SU2-files to the correct locations based on the environment variables PRECICE_ROOT and SU2_HOME.
 # Author: Alexander Rusch
-# SU2 version: 4.3.0 "Cardinal“
+# SU2 version: 5.0.0 "Raven"
 
 printf "\nChecking whether the necessary environment variables are set...\n"
 "${PRECICE_ROOT:?You need to set variable PRECICE_ROOT non-empty.}"
