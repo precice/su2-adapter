@@ -311,12 +311,22 @@ double Precice::advance( double computedTimestepLength ){
         for (int iDim = 0; iDim < nDim; iDim++) {
           normalsVertex_Unit[iVertex][iDim] = normalsVertex[iVertex][iDim]/Area;
         }
-        // Get the values of pressure and viscosity
-        Pn = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetPressure();
-        Pinf = solver_container[ZONE_0][MESH_0][FLOW_SOL]->GetPressure_Inf();
-        if (viscous_flow){
-          Grad_PrimVar = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetGradient_Primitive();
-          Viscosity = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetLaminarViscosity();
+        // Get the values of pressure and viscosity - depending on the kind of problem
+        if (incompressible){
+          Pn = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetPressureInc();
+          Pinf = solver_container[ZONE_0][MESH_0][FLOW_SOL]->GetPressure_Inf();
+          if (viscous_flow){
+            Grad_PrimVar = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetGradient_Primitive();
+            Viscosity = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetLaminarViscosityInc();
+          }
+        }
+        else {
+          Pinf = solver_container[ZONE_0][MESH_0][FLOW_SOL]->GetPressure_Inf();
+          Pn = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetPressure();
+          if (viscous_flow){
+            Grad_PrimVar = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetGradient_Primitive();
+            Viscosity = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetLaminarViscosity();
+          }
         }
 
         // Calculate the forces_su2 in the nodes for the inviscid term --> Units of force (non-dimensional).
