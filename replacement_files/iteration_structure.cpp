@@ -2,7 +2,7 @@
  * \file iteration_structure.cpp
  * \brief Main subroutines used by SU2_CFD
  * \author F. Palacios, T. Economon
- * \version 4.1.2 "Cardinal"
+ * \version 4.1.3 "Cardinal"
  *
  * SU2 Lead Developers: Dr. Francisco Palacios (Francisco.D.Palacios@boeing.com).
  *                      Dr. Thomas D. Economon (economon@stanford.edu).
@@ -2286,7 +2286,7 @@ void SetGrid_Movement(CGeometry **geometry_container, CSurfaceMovement *surface_
       grid_movement->UpdateMultiGrid(geometry_container, config_container);
 
       break;
-          
+
     //preCICE
     case PRECICE_MOVEMENT:
           
@@ -2303,7 +2303,7 @@ void SetGrid_Movement(CGeometry **geometry_container, CSurfaceMovement *surface_
       grid_movement->UpdateMultiGrid(geometry_container, config_container);
           
       break;
-
+          
     case NO_MOVEMENT: case GUST: default:
       
       /*--- There is no mesh motion specified for this zone. ---*/
