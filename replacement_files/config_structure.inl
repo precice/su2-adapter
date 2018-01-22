@@ -2,7 +2,7 @@
  * \file config_structure.inl
  * \brief In-Line subroutines of the <i>config_structure.hpp</i> file.
  * \author F. Palacios, T. Economon
- * \version 4.0.2 "Cardinal"
+ * \version 4.1.0 "Cardinal"
  *
  * SU2 Lead Developers: Dr. Francisco Palacios (Francisco.D.Palacios@boeing.com).
  *                      Dr. Thomas D. Economon (economon@stanford.edu).
@@ -400,19 +400,19 @@ inline unsigned short CConfig::GetnRKStep(void) { return nRKStep; }
 
 inline su2double CConfig::Get_Alpha_RKStep(unsigned short val_step) { return RK_Alpha_Step[val_step]; }
 
-inline unsigned short CConfig::GetMG_PreSmooth(unsigned short val_mesh) {
+inline unsigned short CConfig::GetMG_PreSmooth(unsigned short val_mesh) {	
 	if (nMG_PreSmooth == 0) return 1;
-	else return MG_PreSmooth[val_mesh];
+	else return MG_PreSmooth[val_mesh]; 
 }
 
-inline unsigned short CConfig::GetMG_PostSmooth(unsigned short val_mesh) {
+inline unsigned short CConfig::GetMG_PostSmooth(unsigned short val_mesh) { 
 	if (nMG_PostSmooth == 0) return 0;
 	else return MG_PostSmooth[val_mesh];
 }
 
-inline unsigned short CConfig::GetMG_CorrecSmooth(unsigned short val_mesh) {
+inline unsigned short CConfig::GetMG_CorrecSmooth(unsigned short val_mesh) { 
 	if (nMG_CorrecSmooth == 0) return 0;
-	else return MG_CorrecSmooth[val_mesh];
+	else return MG_CorrecSmooth[val_mesh]; 
 }
 
 inline unsigned long CConfig::GetWrt_Sol_Freq(void) { return Wrt_Sol_Freq; }
@@ -441,7 +441,7 @@ inline unsigned short CConfig::GetKind_GasModel(void) { return Kind_GasModel; }
 
 inline unsigned short CConfig::GetKind_FluidModel(void) { return Kind_FluidModel; }
 
-inline unsigned short CConfig::GetKind_FreeStreamOption(void) {return Kind_FreeStreamOption; }
+inline unsigned short CConfig::GetKind_FreeStreamOption(void) {return Kind_FreeStreamOption; } 
 
 inline unsigned short CConfig::GetKind_InitOption(void) {return Kind_InitOption; }
 
@@ -762,7 +762,7 @@ inline string CConfig::GetMarker_Moving(unsigned short val_marker) { return Mark
 inline short CConfig::GetMarker_All_TagBound(string val_tag) {
 	for (unsigned short iMarker = 0; iMarker < nMarker_All; iMarker++) {
 		if (val_tag == Marker_All_TagBound[iMarker])
-		return iMarker;
+		return iMarker; 
 	}
 	return -1;
 }
@@ -956,6 +956,8 @@ inline bool CConfig::GetAdaptBoundary(void) { return AdaptBoundary; }
 inline bool CConfig::GetPoissonSolver(void) { return PoissonSolver; }
 
 inline bool CConfig::Low_Mach_Preconditioning(void) { return Low_Mach_Precon; }
+
+inline bool CConfig::Low_Mach_Correction(void) { return Low_Mach_Corr; } 
 
 inline bool CConfig::GetGravityForce(void) { return GravityForce; }
 

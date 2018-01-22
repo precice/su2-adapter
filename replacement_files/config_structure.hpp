@@ -3,7 +3,7 @@
  * \brief All the information about the definition of the physical problem.
  *        The subroutines and functions are in the <i>config_structure.cpp</i> file.
  * \author F. Palacios, T. Economon, B. Tracey
- * \version 4.0.2 "Cardinal"
+ * \version 4.1.0 "Cardinal"
  *
  * SU2 Lead Developers: Dr. Francisco Palacios (Francisco.D.Palacios@boeing.com).
  *                      Dr. Thomas D. Economon (economon@stanford.edu).
@@ -55,7 +55,7 @@ using namespace std;
  * \brief Main class for defining the problem; basically this class reads the configuration file, and
  *        stores all the information.
  * \author F. Palacios
- * \version 4.0.2 "Cardinal"
+ * \version 4.1.0 "Cardinal"
  */
 
 class CConfig {
@@ -92,6 +92,7 @@ private:
   Rotating_Frame,			/*!< \brief Flag to know if there is a rotating frame. */
 	PoissonSolver,			/*!< \brief Flag to know if we are solving  poisson forces  in plasma solver. */
 	Low_Mach_Precon,		/*!< \brief Flag to know if we are using a low Mach number preconditioner. */
+	Low_Mach_Corr,			/*!< \brief Flag to know if we are using a low Mach number correction. */
 	GravityForce,			/*!< \brief Flag to know if the gravity force is incuded in the formulation. */
 	SmoothNumGrid,			/*!< \brief Smooth the numerical grid. */
 	AdaptBoundary,			/*!< \brief Adapt the elements on the boundary. */
@@ -677,24 +678,25 @@ private:
   bool ParMETIS;      /*!< \brief Boolean for activating ParMETIS mode (while testing). */
   unsigned short DirectDiff; /*!< \brief Direct Differentation mode. */
   bool DiscreteAdjoint; /*!< \brief AD-based discrete adjoint mode. */
-	//preCICE
-	bool precice_usage;	/*!< \brief Usage of preCICE for FSI simulations */
-	bool precice_verbosityLevel_high;	/*!< \brief Verbosity level of the preCICE adapter for FSI simulations */
-	bool precice_loadRamping; /*!< \brief Usage of preCICE load ramping procedure for FSI simulations */
-	unsigned long precice_loadRampingDuration; /*!< \brief Number of physical time steps for which the load ramping procedure is applied */
-	unsigned long precice_numberWetSurfaces; /*!< \brief Number of different wet surfaces */
-	string preciceConfigFileName;	/*!< \brief Name of the preCICE configuration file */
-	string preciceWetSurfaceMarkerName;	/*!< \brief Name of the wet surface marker (from the mesh file) that the preCICE adapter will use for identification of the wet surface */
-
+  
+  //preCICE
+  bool precice_usage;	/*!< \brief Usage of preCICE for FSI simulations */
+  bool precice_verbosityLevel_high;	/*!< \brief Verbosity level of the preCICE adapter for FSI simulations */
+  bool precice_loadRamping; /*!< \brief Usage of preCICE load ramping procedure for FSI simulations */
+  unsigned long precice_loadRampingDuration; /*!< \brief Number of physical time steps for which the load ramping procedure is applied */
+  unsigned long precice_numberWetSurfaces; /*!< \brief Number of different wet surfaces */
+  string preciceConfigFileName;	/*!< \brief Name of the preCICE configuration file */
+  string preciceWetSurfaceMarkerName;	/*!< \brief Name of the wet surface marker (from the mesh file) that the preCICE adapter will use for identification of the wet surface */
+    
   /*--- all_options is a map containing all of the options. This is used during config file parsing
   to track the options which have not been set (so the default values can be used). Without this map
    there would be no list of all the config file options. ---*/
-
+  
   map<string, bool> all_options;
 
   /*--- brief param is a map from the option name (config file string) to its decoder (the specific child
    class of COptionBase that turns the string into a value) ---*/
-
+  
   map<string, COptionBase*> option_map;
 
 
@@ -713,7 +715,7 @@ private:
 
   /*!<\brief addDoubleOption creates a config file parser for an option with the given name whose
    value can be represented by a su2double.*/
-
+  
   void addDoubleOption(const string name, su2double & option_field, su2double default_value) {
     // Check if the key is already in the map. If this fails, it is coder error
     // and not user error, so throw.
@@ -853,14 +855,14 @@ private:
     COptionBase* val = new COptionDVParam(name, nDV_field, paramDV, FFDTag, design_variable);
     option_map.insert(pair<string, COptionBase *>(name, val));
   }
-
+  
   void addFFDDefOption(const string name, unsigned short & nFFD_field, su2double** & coordFFD, string* & FFDTag) {
     assert(option_map.find(name) == option_map.end());
     all_options.insert(pair<string, bool>(name, true));
     COptionBase* val = new COptionFFDDef(name, nFFD_field, coordFFD, FFDTag);
     option_map.insert(pair<string, COptionBase *>(name, val));
   }
-
+  
   void addFFDDegreeOption(const string name, unsigned short & nFFD_field, unsigned short** & degreeFFD) {
     assert(option_map.find(name) == option_map.end());
     all_options.insert(pair<string, bool>(name, true));
@@ -884,7 +886,7 @@ private:
     option_map.insert(pair<string, COptionBase *>(name, val));
   }
   template <class Tenum>
-
+  
   void addRiemannOption(const string name, unsigned short & nMarker_Riemann, string * & Marker_Riemann, unsigned short* & option_field, const map<string, Tenum> & enum_map,
                                  su2double* & var1, su2double* & var2, su2double** & FlowDir) {
     assert(option_map.find(name) == option_map.end());
@@ -908,7 +910,7 @@ private:
     COptionBase* val = new COptionExhaust(name, nMarker_Exhaust, Marker_Exhaust, Ttotal, Ptotal);
     option_map.insert(pair<string, COptionBase *>(name, val));
   }
-
+  
   void addBleedOption(const string name, unsigned short & nMarker_Bleed, string * & Marker_Bleed,
                         su2double* & MassFlow_Target, su2double* & Temp_Target) {
     assert(option_map.find(name) == option_map.end());
@@ -973,7 +975,7 @@ public:
 	 * \brief Constructor of the class which reads the input file.
 	 */
 	CConfig(char case_filename[MAX_STRING_SIZE], unsigned short val_software);
-
+  
   /*!
    * \brief Constructor of the class which reads the input file.
    */
@@ -1061,7 +1063,7 @@ public:
 	 * \return Integration limits for the equivalent area computation.
 	 */
 	su2double GetEA_IntLimit(unsigned short index);
-
+  
   /*!
 	 * \brief Get the integration limits for the equivalent area computation.
 	 * \param[in] index - 0 means x_min, and 1 means x_max.
@@ -1086,7 +1088,7 @@ public:
    * \return Coordinates where of the box where the grid is going to be a subsonic region.
    */
   su2double *GetSubsonic_Engine_Box(void);
-
+  
 	/*!
 	 * \brief Get the power of the dual volume in the grid adaptation sensor.
 	 * \return Power of the dual volume in the grid adaptation sensor.
@@ -1162,19 +1164,19 @@ public:
 	 * \return Value of the constant: Gamma
 	 */
 	su2double GetGamma(void);
-
+  
   /*!
    * \brief Get the values of the CFL adapation.
    * \return Value of CFL adapation
    */
   su2double GetCFL_AdaptParam(unsigned short val_index);
-
+  
   /*!
    * \brief Get the values of the CFL adapation.
    * \return Value of CFL adapation
    */
   bool GetCFL_Adapt(void);
-
+  
   /*!
 	 * \brief Get the value of the limits for the sections.
 	 * \return Value of the limits for the sections.
@@ -1471,7 +1473,7 @@ public:
 	 * \return Non-dimensionalized freestream intensity.
 	 */
 	su2double GetNuFactor_FreeStream(void);
-
+  
   /*!
    * \brief Get the value of the non-dimensionalized engine turbulence intensity.
    * \return Non-dimensionalized engine intensity.
@@ -1617,7 +1619,7 @@ public:
 	 * \return Value of the limiter coefficient.
 	 */
 	su2double GetLimiterCoeff(void);
-
+  
   /*!
 	 * \brief Freeze the value of the limiter after a number of iterations.
 	 * \return Number of iterations.
@@ -1685,7 +1687,7 @@ public:
 	 * \return Value of the Froude number.
 	 */
 	void SetDensity_Ref(su2double val_density_ref);
-
+  
   /*!
    * \brief Set the reference temperature.
    * \return Value of the Froude number.
@@ -1787,7 +1789,7 @@ public:
 	 * \return Value of the Froude number.
 	 */
 	void SetTemperature_FreeStream(su2double val_temperature_freestream);
-
+  
   /*!
 	 * \brief Set the Froude number for free surface problems.
 	 * \return Value of the Froude number.
@@ -1925,7 +1927,7 @@ public:
 	 * \return CFL number for each grid.
 	 */
 	su2double GetCFL(unsigned short val_mesh);
-
+  
   /*!
 	 * \brief Get the Courant Friedrich Levi number for each grid.
 	 * \param[in] val_mesh - Index of the mesh were the CFL is applied.
@@ -1938,13 +1940,13 @@ public:
 	 * \return CFL number for unsteady simulations.
 	 */
 	su2double GetUnst_CFL(void);
-
+  
   /*!
    * \brief Get the Courant Friedrich Levi number for unsteady simulations.
    * \return CFL number for unsteady simulations.
    */
   su2double GetMax_DeltaTime(void);
-
+  
 	/*!
 	 * \brief Get a parameter of the particular design variable.
 	 * \param[in] val_dv - Number of the design variable that we want to read.
@@ -1975,7 +1977,7 @@ public:
 	 * \return Design variable parameter.
 	 */
 	string GetFFDTag(unsigned short val_dv);
-
+  
   /*!
    * \brief Get the FFD Tag of a particular design variable.
    * \param[in] val_dv - Number of the design variable that we want to read.
@@ -1988,13 +1990,13 @@ public:
 	 * \return Number of the design variables.
 	 */
 	unsigned short GetnDV(void);
-
+  
   /*!
    * \brief Get the number of design variables.
    * \return Number of the design variables.
    */
   unsigned short GetnFFDBox(void);
-
+  
   /*!
    * \brief Get the required continuity level at the surface intersection with the FFD
    * \return Continuity level at the surface intersection.
@@ -2012,7 +2014,7 @@ public:
 	 * \return Total number of boundary markers.
 	 */
 	unsigned short GetnMarker_All(void);
-
+  
   /*!
    * \brief Get the total number of boundary markers.
    * \return Total number of boundary markers.
@@ -2024,7 +2026,7 @@ public:
 	 * \return Total number of boundary markers.
 	 */
 	unsigned short GetnMarker_EngineInflow(void);
-
+  
   /*!
    * \brief Get the total number of boundary markers.
    * \return Total number of boundary markers.
@@ -2195,7 +2197,7 @@ public:
 	 * \return <code>TRUE</code> means that a volume solution file will be written.
 	 */
 	bool GetWrt_Vol_Sol(void);
-
+  
   /*!
 	 * \brief Get information about writing a volume solution file.
 	 * \return <code>TRUE</code> means that a volume solution file will be written.
@@ -2219,13 +2221,13 @@ public:
 	 * \return <code>TRUE</code> means that residuals will be written to the solution file.
 	 */
 	bool GetWrt_Residuals(void);
-
+  
 	/*!
 	 * \brief Get information about writing residuals to volume solution file.
 	 * \return <code>TRUE</code> means that residuals will be written to the solution file.
 	 */
 	bool GetWrt_Limiters(void);
-
+  
 	/*!
 	 * \brief Get information about writing residuals to volume solution file.
 	 * \return <code>TRUE</code> means that residuals will be written to the solution file.
@@ -2280,7 +2282,7 @@ public:
    *         has the marker <i>val_marker</i>.
    */
   string GetMarker_ActDisk_Outlet(unsigned short val_marker);
-
+  
 	/*!
 	 * \brief Get the index of the surface defined in the geometry file.
 	 * \param[in] val_marker - Value of the marker in which we are interested.
@@ -2288,7 +2290,7 @@ public:
 	 *         has the marker <i>val_marker</i>.
 	 */
 	string GetMarker_EngineInflow(unsigned short val_marker);
-
+  
   /*!
    * \brief Get the index of the surface defined in the geometry file.
    * \param[in] val_marker - Value of the marker in which we are interested.
@@ -2682,7 +2684,7 @@ public:
 	 * \return Numerical solver for implicit formulation (solving the linear system).
 	 */
 	unsigned short GetKind_Linear_Solver(void);
-
+  
   /*!
    * \brief Get the kind of solver for the implicit solver.
    * \return Numerical solver for implicit formulation (solving the linear system).
@@ -2724,19 +2726,19 @@ public:
 	 * \return relaxation coefficient of the linear solver for the implicit formulation.
 	 */
 	su2double GetRelaxation_Factor_Flow(void);
-
+  
   /*!
    * \brief Get the relaxation coefficient of the linear solver for the implicit formulation.
    * \return relaxation coefficient of the linear solver for the implicit formulation.
    */
   su2double GetRelaxation_Factor_AdjFlow(void);
-
+  
   /*!
    * \brief Get the relaxation coefficient of the linear solver for the implicit formulation.
    * \return relaxation coefficient of the linear solver for the implicit formulation.
    */
   su2double GetRelaxation_Factor_Turb(void);
-
+  
   /*!
    * \brief Get the relaxation coefficient of the linear solver for the implicit formulation.
    * \return relaxation coefficient of the linear solver for the implicit formulation.
@@ -2778,7 +2780,7 @@ public:
 	 * \return Min error of the linear solver for the implicit formulation.
 	 */
 	su2double GetAdjTurb_Linear_Error(void);
-
+  
   /*!
 	 * \brief Get the entropy fix.
 	 * \return Vaule of the entropy fix.
@@ -2849,13 +2851,13 @@ public:
 	 * \return Kind of the SU2 software component.
 	 */
 	unsigned short GetKind_SU2(void);
-
+  
   /*!
    * \brief Get the kind of non-dimensionalization.
    * \return Kind of non-dimensionalization.
    */
   unsigned short GetRef_NonDim(void);
-
+  
   /*!
 	 * \brief Get the kind of SU2 software component.
 	 * \return Kind of the SU2 software component.
@@ -3284,13 +3286,13 @@ public:
    * \return <code>FALSE</code> means no viscous limiter turb equations.
    */
   bool GetViscous_Limiter_Flow(void);
-
+  
   /*!
    * \brief Viscous limiter turb equations.
    * \return <code>FALSE</code> means no viscous limiter turb equations.
    */
   bool GetViscous_Limiter_Turb(void);
-
+  
   /*!
    * \brief Write convergence file for FSI problems
    * \return <code>FALSE</code> means no file is written.
@@ -3676,7 +3678,7 @@ public:
 	 * \return Name of the file with convergence history of the problem.
 	 */
 	string GetConv_FileName_FSI(void);
-
+    
   /*!
    * \brief Get the name of the file with the forces breakdown of the problem.
    * \return Name of the file with forces breakdown of the problem.
@@ -3748,7 +3750,7 @@ public:
 	 * \return Name of the restart file for the flow variables.
 	 */
 	string GetRestart_FlowFileName(string val_filename, int val_iZone);
-
+    
     /*!
 	 * \brief Get the name of the restart file for the flow variables.
 	 * \return Name of the restart file for the flow variables.
@@ -3805,7 +3807,7 @@ public:
 	 * \return Name of the file with the appropriate objective function extension.
 	 */
   string GetObjFunc_Extension(string val_filename);
-
+  
         /*!
   	 * \brief Get functional that is going to be used to evaluate the residual flow convergence.
   	 * \return Functional that is going to be used to evaluate the residual flow convergence.
@@ -4157,6 +4159,12 @@ public:
 	bool Low_Mach_Preconditioning(void);
 
 	/*!
+	 * \brief Get information about the Low Mach Correction
+	 * \return <code>TRUE</code> if we are using low Mach correction; otherwise <code>FALSE</code>.
+	 */
+	bool Low_Mach_Correction(void);
+
+	/*!
 	 * \brief Get information about the poisson solver condition
 	 * \return <code>TRUE</code> if it is a poisson solver condition; otherwise <code>FALSE</code>.
 	 */
@@ -4179,7 +4187,7 @@ public:
 	 * \return <code>TRUE</code> if there is a rotational frame; otherwise <code>FALSE</code>.
 	 */
 	bool GetAxisymmetric(void);
-
+  
   /*!
 	 * \brief Get information about the axisymmetric frame.
 	 * \return <code>TRUE</code> if there is a rotational frame; otherwise <code>FALSE</code>.
@@ -4229,7 +4237,7 @@ public:
 	 * \return Index in the config information of the marker <i>val_marker</i>.
 	 */
 	unsigned short GetMarker_CfgFile_TagBound(string val_marker);
-
+  
   /*!
    * \brief Get the name in the config information of the marker number <i>val_marker</i>.
    * \note When we read the config file, it stores the markers in a particular vector.
@@ -4340,25 +4348,25 @@ public:
 	 * \return Value of the minimum residual value (log10 scale).
 	 */
 	su2double GetMinLogResidualFSI(void);
-
+  
   /*!
    * \brief Value of the damping factor for the engine inlet bc.
    * \return Value of the damping factor.
    */
   su2double GetDamp_Engine_Inflow(void);
-
+  
   /*!
    * \brief Value of the damping factor for the engine bleed inlet bc.
    * \return Value of the damping factor.
    */
   su2double GetDamp_Engine_Bleed(void);
-
+  
   /*!
    * \brief Value of the damping factor for the engine exhaust inlet bc.
    * \return Value of the damping factor.
    */
   su2double GetDamp_Engine_Exhaust(void);
-
+  
 	/*!
 	 * \brief Value of the damping factor for the residual restriction.
 	 * \return Value of the damping factor.
@@ -4436,7 +4444,7 @@ public:
 	 * \brief Get the thurst corffient of the actuator disk.
 	 */
   su2double GetActDisk_PressJump(string val_marker);
-
+  
   /*!
    * \brief Get the thurst corffient of the actuator disk.
    */
@@ -4446,12 +4454,12 @@ public:
 	 * \brief Get the rev / min of the actuator disk.
 	 */
   su2double GetActDisk_Omega(string val_marker);
-
+  
   /*!
    * \brief Get the rev / min of the actuator disk.
    */
   unsigned short GetActDisk_Distribution(string val_marker);
-
+  
   /*!
 	 * \brief Get Actuator Disk Outlet for boundary <i>val_marker</i> (actuator disk inlet).
 	 * \return Actuator Disk Outlet from the config information for the marker <i>val_marker</i>.
@@ -4715,63 +4723,63 @@ public:
 	 * \return The outlet pressure.
 	 */
 	void SetInflow_Pressure(unsigned short val_imarker, su2double val_fanface_pressure);
-
+  
   /*!
    * \brief Get the back pressure (static) at an outlet boundary.
    * \param[in] val_index - Index corresponding to the outlet boundary.
    * \return The outlet pressure.
    */
   su2double GetBleed_Temperature_Target(string val_marker);
-
+  
   /*!
    * \brief Get the back pressure (static) at an outlet boundary.
    * \param[in] val_index - Index corresponding to the outlet boundary.
    * \return The outlet pressure.
    */
   su2double GetBleed_Temperature(string val_marker);
-
+  
   /*!
    * \brief Get the back pressure (static) at an outlet boundary.
    * \param[in] val_index - Index corresponding to the outlet boundary.
    * \return The outlet pressure.
    */
   void SetBleed_Temperature(unsigned short val_imarker, su2double val_bleed_temp);
-
+  
   /*!
    * \brief Get the back pressure (static) at an outlet boundary.
    * \param[in] val_index - Index corresponding to the outlet boundary.
    * \return The outlet pressure.
    */
   void SetExhaust_Temperature(unsigned short val_imarker, su2double val_exhaust_temp);
-
+  
   /*!
    * \brief Get the back pressure (static) at an outlet boundary.
    * \param[in] val_index - Index corresponding to the outlet boundary.
    * \return The outlet pressure.
    */
   su2double GetExhaust_Temperature(string val_marker);
-
+  
   /*!
    * \brief Get the back pressure (static) at an outlet boundary.
    * \param[in] val_index - Index corresponding to the outlet boundary.
    * \return The outlet pressure.
    */
   su2double GetBleed_MassFlow_Target(string val_marker);
-
+  
   /*!
    * \brief Get the back pressure (static) at an outlet boundary.
    * \param[in] val_index - Index corresponding to the outlet boundary.
    * \return The outlet pressure.
    */
   su2double GetBleed_MassFlow(string val_marker);
-
+  
   /*!
    * \brief Get the back pressure (static) at an outlet boundary.
    * \param[in] val_index - Index corresponding to the outlet boundary.
    * \return The outlet pressure.
    */
   void SetBleed_MassFlow(unsigned short val_imarker, su2double val_bleed_massflow);
-
+  
   /*!
    * \brief Get the back pressure (static) at an outlet boundary.
    * \param[in] val_index - Index corresponding to the outlet boundary.
@@ -4792,14 +4800,14 @@ public:
    * \return The outlet pressure.
    */
   void SetBleed_Pressure(unsigned short val_imarker, su2double val_bleed_pressure);
-
+  
   /*!
    * \brief Get the back pressure (static) at an outlet boundary.
    * \param[in] val_index - Index corresponding to the outlet boundary.
    * \return The outlet pressure.
    */
   void SetExhaust_Pressure(unsigned short val_imarker, su2double val_exhaust_pressure);
-
+  
 	/*!
 	 * \brief Get the displacement value at an displacement boundary.
 	 * \param[in] val_index - Index corresponding to the displacement boundary.
@@ -4900,7 +4908,7 @@ public:
    * \brief Set the config file parsing.
    */
   bool SetRunTime_Parsing(char case_filename[MAX_STRING_SIZE]);
-
+  
 	/*!
 	 * \brief Config file postprocessing.
 	 */
@@ -4950,7 +4958,7 @@ public:
    * \brief Aeroelastic Flutter Speed Index.
    */
   su2double GetAeroelastic_Flutter_Speed_Index(void);
-
+  
 	/*!
 	 * \brief Uncoupled Aeroelastic Frequency Plunge.
 	 */
@@ -4980,7 +4988,7 @@ public:
    * \brief Aeroelastic solve every x inner iteration.
    */
   unsigned short GetAeroelasticIter(void);
-
+  
 	/*!
 	 * \brief Value of plunging coordinate.
      * \param[in] val_marker - the marker we are monitoring.
@@ -5091,13 +5099,13 @@ public:
 	 * \return Damping coefficient for fixed CL mode.
 	 */
 	su2double GetDamp_Fixed_CL(void);
-
+  
   /*!
    * \brief Get the value of iterations to re-evaluate the angle of attack.
    * \return Number of iterations.
    */
   unsigned long GetIter_Fixed_CL(void);
-
+  
   /*!
 	 * \brief Set the value of the boolean for updating AoA in fixed lift mode.
    * \param[in] val_update - the bool for whether to update the AoA.
@@ -5109,31 +5117,31 @@ public:
 	 * \return <code>TRUE</code> if we should update the AoA for fixed lift mode; otherwise <code>FALSE</code>.
 	 */
 	bool GetUpdate_AoA(void);
-
+  
   /*!
 	 * \brief Set the current number of non-physical nodes in the solution.
    * \param[in] val_nonphys_points - current number of non-physical points.
 	 */
 	void SetNonphysical_Points(unsigned long val_nonphys_points);
-
+  
   /*!
 	 * \brief Get the current number of non-physical nodes in the solution.
 	 * \return Current number of non-physical points.
 	 */
 	unsigned long GetNonphysical_Points(void);
-
+  
   /*!
 	 * \brief Set the current number of non-physical reconstructions for 2nd-order upwinding.
    * \param[in] val_nonphys_reconstr - current number of non-physical reconstructions for 2nd-order upwinding.
 	 */
 	void SetNonphysical_Reconstr(unsigned long val_nonphys_reconstr);
-
+  
   /*!
 	 * \brief Get the current number of non-physical reconstructions for 2nd-order upwinding.
 	 * \return Current number of non-physical reconstructions for 2nd-order upwinding.
 	 */
 	unsigned long GetNonphysical_Reconstr(void);
-
+  
 	/*!
 	 * \brief Given arrays x[1..n] and y[1..n] containing a tabulated function, i.e., yi = f(xi), with
 	          x1 < x2 < . . . < xN , and given values yp1 and ypn for the first derivative of the interpolating
@@ -5153,7 +5161,7 @@ public:
 	 * \returns The interpolated value of for x.
 	 */
 	su2double GetSpline(vector<su2double> &xa, vector<su2double> &ya, vector<su2double> &y2a, unsigned long n, su2double x);
-
+  
   /*!
    * \brief Get the verbosity level of the console output.
    * \return Verbosity level for the console output.
@@ -5286,49 +5294,50 @@ public:
 	 * \return Value of the relaxation method
 	 */
 	unsigned short GetRelaxation_Method_FSI(void);
+    
+    //preCICE
+    /*!
+     * \brief Check if the simulation we are running uses preCICE for FSI
+     * \return True if we use preCICE, false otherwise.
+     */
+    bool GetpreCICE_Usage(void);
+    
+    /*!
+     * \brief Check if the verbosity level of the preCICE adapter is high or not
+     * \return True if verbosity level is high, false otherwise.
+     */
+    bool GetpreCICE_VerbosityLevel_High(void);
+    
+    /*!
+     * \brief Check if the load ramping procedure of the preCICE adapter is activated or not
+     * \return True if the procedure is applied, false otherwise.
+     */
+    bool GetpreCICE_LoadRamping(void);
+    
+    /*!
+     * \brief Get the name of the preCICE configuration file
+     * \return preCICE configuration file name as string
+     */
+    string GetpreCICE_ConfigFileName(void);
+    
+    /*!
+     * \brief Get the name of the wet surface marker used in the mesh file
+     * \return Wet surface marker name as string
+     */
+    string GetpreCICE_WetSurfaceMarkerName(void);
+    
+    /*!
+     * \brief Get the number of physical time steps for which the load ramping is applied
+     * \return Number of corresponding time steps for which the force vector is continuously increased up to the original value
+     */
+    unsigned long GetpreCICE_LoadRampingDuration(void);
+    
+    /*!
+     * \brief Get the number of wet surfaces in the FSI simulation
+     * \return Number of wet surfaces
+     */
+    unsigned long GetpreCICE_NumberWetSurfaces(void);
 
-	//preCICE
-	/*!
-	 * \brief Check if the simulation we are running uses preCICE for FSI
-	 * \return True if we use preCICE, false otherwise.
-	 */
-	bool GetpreCICE_Usage(void);
-
-	/*!
-	 * \brief Check if the verbosity level of the preCICE adapter is high or not
-	 * \return True if verbosity level is high, false otherwise.
-	 */
-	bool GetpreCICE_VerbosityLevel_High(void);
-
-	/*!
-	 * \brief Check if the load ramping procedure of the preCICE adapter is activated or not
-	 * \return True if the procedure is applied, false otherwise.
-	 */
-	bool GetpreCICE_LoadRamping(void);
-
-	/*!
-	 * \brief Get the name of the preCICE configuration file
-	 * \return preCICE configuration file name as string
-	 */
-	string GetpreCICE_ConfigFileName(void);
-
-	/*!
-	 * \brief Get the name of the wet surface marker used in the mesh file
-	 * \return Wet surface marker name as string
-	 */
-	string GetpreCICE_WetSurfaceMarkerName(void);
-
-	/*!
-	 * \brief Get the number of physical time steps for which the load ramping is applied
-	 * \return Number of corresponding time steps for which the force vector is continuously increased up to the original value
-	 */
-	unsigned long GetpreCICE_LoadRampingDuration(void);
-
-	/*!
-	 * \brief Get the number of wet surfaces in the FSI simulation
-	 * \return Number of wet surfaces
-	 */
-	unsigned long GetpreCICE_NumberWetSurfaces(void);
 
 
 };

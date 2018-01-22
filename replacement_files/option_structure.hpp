@@ -2,7 +2,7 @@
  * \file option_structure.hpp
  * \brief Defines classes for referencing options for easy input in CConfig
  * \author J. Hicken, B. Tracey
- * \version 4.0.2 "Cardinal"
+ * \version 4.1.0 "Cardinal"
  *
  * Many of the classes in this file are templated, and therefore must
  * be declared and defined here; to keep all elements together, there
@@ -827,7 +827,7 @@ enum ENUM_OBJECTIVE {
   AVG_TOTAL_PRESSURE = 28, 	    /*!< \brief Total Pressure objective function definition. */
   AVG_OUTLET_PRESSURE = 29,      /*!< \brief Static Pressure objective function definition. */
   MASS_FLOW_RATE = 30,           /*!< \brief Mass Flow Rate objective function definition. */
-  OUTLET_CHAIN_RULE=31          /*!<\brief Objective function defined via chain rule on primitive variable gradients. */
+  OUTFLOW_GENERALIZED=31          /*!<\brief Objective function defined via chain rule on primitive variable gradients. */
 };
 
 static const map<string, ENUM_OBJECTIVE> Objective_Map = CCreateMap<string, ENUM_OBJECTIVE>
@@ -861,7 +861,7 @@ static const map<string, ENUM_OBJECTIVE> Objective_Map = CCreateMap<string, ENUM
 ("AVG_TOTAL_PRESSURE", AVG_TOTAL_PRESSURE)
 ("AVG_OUTLET_PRESSURE", AVG_OUTLET_PRESSURE)
 ("MASS_FLOW_RATE", MASS_FLOW_RATE)
-("OUTLET_CHAIN_RULE", OUTLET_CHAIN_RULE);
+("OUTFLOW_GENERALIZED", OUTFLOW_GENERALIZED);
 
 /*!
  * \brief types of residual criteria equations
@@ -1018,7 +1018,8 @@ enum ENUM_PARAM {
   PARABOLIC = 15,		         /*!< \brief Parabolic airfoil definition as design variables. */
   NACA_4DIGITS = 16,	         /*!< \brief The four digits NACA airfoil family as design variables. */
   AIRFOIL = 17,		           /*!< \brief Airfoil definition as design variables. */
-  SURFACE_FILE = 18		     /*!< Nodal coordinates set using a surface file. */
+  SURFACE_FILE = 18,		     /*!< Nodal coordinates set using a surface file. */
+  CUSTOM = 19                /*!< 'CUSTOM' for use in external python analysis. */
 };
 static const map<string, ENUM_PARAM> Param_Map = CCreateMap<string, ENUM_PARAM>
 ("FFD_SETTING", FFD_SETTING)
@@ -1039,7 +1040,8 @@ static const map<string, ENUM_PARAM> Param_Map = CCreateMap<string, ENUM_PARAM>
 ("FFD_THICKNESS", FFD_THICKNESS)
 ("PARABOLIC", PARABOLIC)
 ("AIRFOIL", AIRFOIL)
-("SURFACE_FILE", SURFACE_FILE);
+("SURFACE_FILE", SURFACE_FILE)
+("CUSTOM",CUSTOM);
 
 /*!
  * \brief types of solvers for solving linear systems
@@ -1838,7 +1840,7 @@ public:
   }
 
   ~COptionDVParam() {};
-
+  
   string SetValue(vector<string> option_value) {
     if ((option_value.size() == 1) && (option_value[0].compare("NONE") == 0)) {
       this->nDV = 0;
@@ -1912,6 +1914,7 @@ public:
         case FFD_CAMBER: nParamDV = 3; break;
         case FFD_THICKNESS: nParamDV = 3; break;
         case SURFACE_FILE: nParamDV = 0; break;
+        case CUSTOM: nParamDV = 1; break;
         default : {
           string newstring;
           newstring.append(this->name);
@@ -1972,20 +1975,20 @@ class COptionFFDDef : public COptionBase{
   unsigned short & nFFD;
   su2double ** & CoordFFD;
   string * & FFDTag;
-
+  
 public:
   COptionFFDDef(string option_field_name, unsigned short & nFFD_field, su2double** & coordFFD_field, string* & FFDTag_field) : nFFD(nFFD_field), CoordFFD(coordFFD_field), FFDTag(FFDTag_field) {
     this->name = option_field_name;
   }
-
+  
   ~COptionFFDDef() {};
-
+  
   string SetValue(vector<string> option_value) {
     if ((option_value.size() == 1) && (option_value[0].compare("NONE") == 0)) {
       this->nFFD = 0;
       return "";
     }
-
+    
     // Cannot have ; at the beginning or the end
     if (option_value[0].compare(";") == 0) {
       string newstring;
@@ -1999,8 +2002,8 @@ public:
       newstring.append(": may not have ending semicolon");
       return newstring;
     }
-
-
+    
+    
     // use the ";" token to determine the number of design variables
     // This works because semicolon is not one of the delimiters in tokenize string
     this->nFFD = 0;
@@ -2009,35 +2012,35 @@ public:
         this->nFFD++;
       }
     }
-
+    
     // One more design variable than semicolon
     this->nFFD++;
-
+    
     this->CoordFFD = new su2double*[this->nFFD];
     for (unsigned short iFFD = 0; iFFD < this->nFFD; iFFD++) {
       this->CoordFFD[iFFD] = new su2double[25];
     }
-
+    
     this->FFDTag = new string[this->nFFD];
-
+    
     unsigned short nCoordFFD = 0;
     stringstream ss;
     unsigned int i = 0;
-
+    
     for (unsigned short iFFD = 0; iFFD < this->nFFD; iFFD++) {
-
+      
       nCoordFFD = 25;
-
+      
       for (unsigned short iCoordFFD = 0; iCoordFFD < nCoordFFD; iCoordFFD++) {
-
+        
         ss << option_value[i] << " ";
-
+        
         if (iCoordFFD == 0) ss >> this->FFDTag[iFFD];
         else ss >> this->CoordFFD[iFFD][iCoordFFD-1];
-
+        
         i++;
       }
-
+      
       if (iFFD < (this->nFFD-1)) {
         if (option_value[i].compare(";") != 0) {
           string newstring;
@@ -2047,39 +2050,39 @@ public:
         }
         i++;
       }
-
+      
     }
-
+    
     // Need to return something...
     return "";
   }
-
+  
   void SetDefault() {
     this->nFFD = 0;
     this->CoordFFD = NULL;
     this->FFDTag = NULL;
   }
-
+  
 };
 
 class COptionFFDDegree : public COptionBase{
   string name;
   unsigned short & nFFD;
   unsigned short ** & DegreeFFD;
-
+  
 public:
   COptionFFDDegree(string option_field_name, unsigned short & nFFD_field, unsigned short** & degreeFFD_field) : nFFD(nFFD_field), DegreeFFD(degreeFFD_field) {
     this->name = option_field_name;
   }
-
+  
   ~COptionFFDDegree() {};
-
+  
   string SetValue(vector<string> option_value) {
     if ((option_value.size() == 1) && (option_value[0].compare("NONE") == 0)) {
       this->nFFD = 0;
       return "";
     }
-
+    
     // Cannot have ; at the beginning or the end
     if (option_value[0].compare(";") == 0) {
       string newstring;
@@ -2093,8 +2096,8 @@ public:
       newstring.append(": may not have ending semicolon");
       return newstring;
     }
-
-
+    
+    
     // use the ";" token to determine the number of design variables
     // This works because semicolon is not one of the delimiters in tokenize string
     this->nFFD = 0;
@@ -2103,29 +2106,29 @@ public:
         this->nFFD++;
       }
     }
-
+    
     // One more design variable than semicolon
     this->nFFD++;
-
+    
     this->DegreeFFD = new unsigned short*[this->nFFD];
     for (unsigned short iFFD = 0; iFFD < this->nFFD; iFFD++) {
       this->DegreeFFD[iFFD] = new unsigned short[3];
     }
-
+    
     unsigned short nDegreeFFD = 0;
     stringstream ss;
     unsigned int i = 0;
-
+    
     for (unsigned short iFFD = 0; iFFD < this->nFFD; iFFD++) {
-
+      
       nDegreeFFD = 3;
-
+      
       for (unsigned short iDegreeFFD = 0; iDegreeFFD < nDegreeFFD; iDegreeFFD++) {
         ss << option_value[i] << " ";
         ss >> this->DegreeFFD[iFFD][iDegreeFFD];
         i++;
       }
-
+      
       if (iFFD < (this->nFFD-1)) {
         if (option_value[i].compare(";") != 0) {
           string newstring;
@@ -2135,18 +2138,18 @@ public:
         }
         i++;
       }
-
+      
     }
-
+    
     // Need to return something...
     return "";
   }
-
+  
   void SetDefault() {
     this->nFFD = 0;
     this->DegreeFFD = NULL;
   }
-
+  
 };
 
 // Class where the option is represented by (String, su2double, string, su2double, ...)
@@ -2526,7 +2529,7 @@ public:
   }
 
   ~COptionExhaust() {};
-
+  
   string SetValue(vector<string> option_value) {
 
     unsigned short totalVals = option_value.size();
@@ -2564,7 +2567,7 @@ public:
       if (!(ss_2nd >> this->ptotal[i]))
         return badValue(option_value, "exhaust fixed", this->name);
     }
-
+    
     return "";
   }
 
@@ -2574,7 +2577,7 @@ public:
     this->ptotal = NULL;
     this->size = 0; // There is no default value for list
   }
-
+  
 };
 
 //Inlet condition where the input direction is assumed
@@ -2584,16 +2587,16 @@ class COptionBleed : public COptionBase{
   string * & marker;
   su2double * & massflow_target;
   su2double * & temp_target;
-
+  
 public:
   COptionBleed(string option_field_name, unsigned short & nMarker_Bleed, string* & Marker_Bleed, su2double* & MassFlow_Target, su2double* & Temp_Target) : size(nMarker_Bleed), marker(Marker_Bleed), massflow_target(MassFlow_Target), temp_target(Temp_Target) {
     this->name = option_field_name;
   }
-
+  
   ~COptionBleed() {};
-
+  
   string SetValue(vector<string> option_value) {
-
+    
     unsigned short totalVals = option_value.size();
     if ((totalVals == 1) && (option_value[0].compare("NONE") == 0)) {
       this->size = 0;
@@ -2602,7 +2605,7 @@ public:
       this->temp_target = NULL;
       return "";
     }
-
+    
     if (totalVals % 3 != 0) {
       string newstring;
       newstring.append(this->name);
@@ -2613,13 +2616,13 @@ public:
       this->temp_target = NULL;
       return newstring;
     }
-
+    
     unsigned short nVals = totalVals / 3;
     this->size = nVals;
     this->marker = new string[nVals];
     this->massflow_target = new su2double[nVals];
     this->temp_target = new su2double[nVals];
-
+    
     for (unsigned long i = 0; i < nVals; i++) {
       this->marker[i].assign(option_value[3*i]);
       istringstream ss_1st(option_value[3*i + 1]);
@@ -2629,17 +2632,17 @@ public:
       if (!(ss_2nd >> this->temp_target[i]))
         return badValue(option_value, "bleed fixed", this->name);
     }
-
+    
     return "";
   }
-
+  
   void SetDefault() {
     this->marker = NULL;
     this->massflow_target = NULL;
     this->temp_target = NULL;
     this->size = 0; // There is no default value for list
   }
-
+  
 };
 
 class COptionPeriodic : public COptionBase{
@@ -3080,3 +3083,4 @@ public:
     this->distribution = NULL;
   }
 };
+
