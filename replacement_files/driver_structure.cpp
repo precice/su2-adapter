@@ -529,9 +529,9 @@ void CDriver::Postprocessing() {
   //preCICE - Finalize
   if(precice_usage){
     precice->finalize();
-    delete [] precice;
-    delete [] dt;
-    delete [] max_precice_dt;
+    delete dt;
+    delete max_precice_dt;
+    delete precice;
   }
 
   /*--- Exit the solver cleanly ---*/
