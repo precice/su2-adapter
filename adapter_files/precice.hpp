@@ -37,7 +37,6 @@ private:
   unsigned long *vertexSize; //Number of nodes at the wet surface (for each wet surface)
   short *valueMarkerWet; //List of wet surface marker values
   int **vertexIDs;
-  int *displID;
   int *forceID;
   int *displDeltaID;
   double *forces;
