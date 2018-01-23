@@ -17,7 +17,6 @@ solver_container(solver_container),
 config_container(config_container),
 grid_movement(grid_movement),
 vertexIDs(NULL),
-displID(NULL),
 forceID(NULL),
 displDeltaID(NULL),
 forces(NULL),
@@ -79,11 +78,8 @@ Precice::~Precice(void) {
     delete [] vertexIDs[i];
   }
   delete [] vertexIDs;
-  delete [] displID;
   delete [] forceID;
   delete [] displDeltaID;
-  delete [] forces;
-  delete [] displacementDeltas;
   delete [] valueMarkerWet;
   delete [] vertexSize;
   delete [] indexMarkerWetMappingLocalToGlobal;
