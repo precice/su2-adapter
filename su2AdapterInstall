@@ -36,7 +36,7 @@ printf "Replacing original SU2 Makefile with preCICE-adapter conforming Makefile
 cp ./replacement_files/Makefile.am $SU2_HOME/SU2_CFD/obj
 printf " done.\n\n"
 
-printf "Autoreconfiguring due to the changed Makefile...\n\n"
+printf "Autoreconfiguring due to the changed Makefile...\n"
 cd $SU2_HOME
 autoreconf
 printf "\nAutoreconfiguring done.\n\n"
@@ -48,10 +48,15 @@ printf "Please enable MPI when configuring SU2.\n\n"
 printf "A sample SU2 configure procedure might look like: ./configure --prefix=\$SU2_HOME --enable-mpi\n"
 printf "A sample SU2 make procedure might look like: make -j 4\n\n"
 
-printf "For Linux-users: Please add the following line to your ~/.bashrc (for more information refer to the adapter README).\n"
-printf "export LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH:\$PRECICE_ROOT/build/last\"\n\n"
-
-printf "For Mac-users: Please add the following line to your ~/.bash_profile (for more information refer to the adapter README).\n"
-printf "export DYLD_LIBRARY_PATH=\"\$DYLD_LIBRARY_PATH:\$PRECICE_ROOT/build/last\"\n\n"
+unamestr=`uname -s`
+if [[ "$unamestr" == 'Linux' ]]; then
+   printf "Please add the following line to your ~/.bashrc (for more information refer to the adapter README).\n"
+   printf "export LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH:\$PRECICE_ROOT/build/last\"\n\n"
+elif [[ "$unamestr" == 'Darwin' ]]; then
+   printf "Please add the following line to your ~/.bash_profile (for more information refer to the adapter README).\n"
+   printf "export DYLD_LIBRARY_PATH=\"\$DYLD_LIBRARY_PATH:\$PRECICE_ROOT/build/last\"\n\n"
+else
+   printf "This script may not work on your system.\n\n"
+fi
 
 printf "Adapter installation completed.\n\n"
