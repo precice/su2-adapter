@@ -75,38 +75,90 @@ solution_time_n1_Saved(NULL)
 
 Precice::~Precice(void) {
   for (int i = 0; i < localNumberWetSurfaces; i++) {
-    delete [] vertexIDs[i];
+    if (vertexIDs[i] != NULL) {
+        delete [] vertexIDs[i];
+    }
   }
-  delete [] vertexIDs;
-  delete [] forceID;
-  delete [] displDeltaID;
-  delete [] valueMarkerWet;
-  delete [] vertexSize;
-  delete [] indexMarkerWetMappingLocalToGlobal;
+  if (vertexIDs != NULL) {
+    delete [] vertexIDs;
+  }
+  if (forceID != NULL) {
+    delete [] forceID;
+  }
+  if (displDeltaID != NULL) {
+    delete [] displDeltaID;
+  }
+  if (valueMarkerWet != NULL) {
+    delete [] valueMarkerWet;
+  }
+  if (vertexSize != NULL) {
+    delete [] vertexSize;
+  }
+  if (indexMarkerWetMappingLocalToGlobal != NULL) {
+    delete [] indexMarkerWetMappingLocalToGlobal;
+  }
 
   for (int iPoint = 0; iPoint < nPoint; iPoint++) {
-    delete [] Coord_Saved[iPoint];
-    delete [] Coord_n_Saved[iPoint];
-    delete [] Coord_n1_Saved[iPoint];
-    delete [] Coord_p1_Saved[iPoint];
-    delete [] GridVel_Saved[iPoint];
-    for (int iDim = 0; iDim < nDim; iDim++) {
-      delete [] GridVel_Grad_Saved[iPoint][iDim];
+    if (Coord_Saved[iPoint] != NULL) {
+        delete [] Coord_Saved[iPoint];
     }
-    delete [] GridVel_Grad_Saved[iPoint];
-    delete [] solution_Saved[iPoint];
-    delete [] solution_time_n_Saved[iPoint];
-    delete [] solution_time_n1_Saved[iPoint];
+    if (Coord_n_Saved[iPoint] != NULL) {
+        delete [] Coord_n_Saved[iPoint];
+    }
+    if (Coord_n1_Saved[iPoint] != NULL) {
+        delete [] Coord_n1_Saved[iPoint];
+    }
+    if (Coord_p1_Saved[iPoint] != NULL) {
+        delete [] Coord_p1_Saved[iPoint];
+    }
+    if (GridVel_Saved[iPoint] != NULL) {
+        delete [] GridVel_Saved[iPoint];
+    }
+    for (int iDim = 0; iDim < nDim; iDim++) {
+      if (GridVel_Grad_Saved[iPoint][iDim] != NULL) {
+        delete [] GridVel_Grad_Saved[iPoint][iDim];
+      }
+    }
+    if (GridVel_Grad_Saved[iPoint] != NULL) {
+        delete [] GridVel_Grad_Saved[iPoint];
+    }
+    if (solution_Saved[iPoint] != NULL) {
+        delete [] solution_Saved[iPoint];
+    }
+    if (solution_time_n_Saved[iPoint] != NULL) {
+        delete [] solution_time_n_Saved[iPoint];
+    }
+    if (solution_time_n1_Saved[iPoint] != NULL) {
+        delete [] solution_time_n1_Saved[iPoint];
+    }
   }
-  delete [] Coord_Saved;
-  delete [] Coord_n_Saved;
-  delete [] Coord_n1_Saved;
-  delete [] Coord_p1_Saved;
-  delete [] GridVel_Saved;
-  delete [] GridVel_Grad_Saved;
-  delete [] solution_Saved;
-  delete [] solution_time_n_Saved;
-  delete [] solution_time_n1_Saved;
+  if (Coord_Saved != NULL) {
+    delete [] Coord_Saved;
+  }
+  if (Coord_n_Saved != NULL) {
+    delete [] Coord_n_Saved;
+  }
+  if (Coord_n1_Saved != NULL) {
+    delete [] Coord_n1_Saved;
+  }
+  if (Coord_p1_Saved != NULL) {
+    delete [] Coord_p1_Saved;
+  }
+  if (GridVel_Saved != NULL) {
+    delete [] GridVel_Saved;
+  }
+  if (GridVel_Grad_Saved != NULL) {
+    delete [] GridVel_Grad_Saved;
+  }
+  if (solution_Saved != NULL) {
+    delete [] solution_Saved;
+  }
+  if (solution_time_n_Saved != NULL) {
+    delete [] solution_time_n_Saved;
+  }
+  if (solution_time_n1_Saved != NULL) {
+    delete [] solution_time_n1_Saved;
+  }
 }
 
 
@@ -240,7 +292,9 @@ double Precice::initialize(){
   if (verbosityLevel_high) {
     cout << "Process #" << solverProcessIndex << "/" << solverProcessSize-1 << ": ...done initializing preCICE!" << endl;
   }
-  delete [] meshID;
+  if (meshID != NULL) {
+    delete [] meshID;
+  }
   return precice_dt;
 }
 
