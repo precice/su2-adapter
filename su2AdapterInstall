@@ -2,50 +2,83 @@
 
 # This auxiliary script simplifies the installation of the preCICE-adapter for SU2. It copies the adapted SU2-files to the correct locations based on the environment variables PRECICE_ROOT and SU2_HOME.
 # Author: Alexander Rusch
+# SU2 version: 4.1.3 "Cardinal"
 
+# SU2 version for which this adapter was made
+VERSION="4.1.3 \"Cardinal\""
+
+# Always run this script from current directory
+cd "$(dirname "$0")"
+
+# Check for environment variables
 printf "\nChecking whether the necessary environment variables are set...\n"
-"${PRECICE_ROOT:?You need to set variable PRECICE_ROOT non-empty.}"
-"${SU2_HOME:?You need to set variable SU2_HOME non-empty.}"
+"${PRECICE_ROOT:?You need to set variable PRECICE_ROOT non-empty. Aborting.}"
+"${SU2_HOME:?You need to set variable SU2_HOME non-empty. Aborting.}"
 printf "Necessary environment variables are set.\n"
 
+# Check for SU2 version
+printf "\nChecking whether adapter and SU2 version are compatible..."
+if sed '1,10!d' $SU2_HOME/SU2_CFD/src/SU2_CFD.cpp | grep -Fq "$VERSION"
+then
+    printf " yes.\n"
+else
+    printf " no.\nThis adapter was built for SU2 version $VERSION.\nPlease choose the correct adapter from the SU2-adapter repo.\nAborting.\n"
+    exit 1;
+fi
+
+# Check for command line tools
 printf "\nChecking whether the necessary tools are available..."
-command -v make >/dev/null 2>&1 || { printf >&2 "\nThe command \"make\" is needed. Please install a respective package and try again. Aborting."; exit 1; }
-command -v autoreconf >/dev/null 2>&1 || { printf >&2 "\nThe command \"autoreconf\" is needed. Please install a respective package and try again. Aborting."; exit 1; }
-command -v autoconf >/dev/null 2>&1 || { printf >&2 "\nThe command \"autoconf\" is needed. Please install a respective package and try again. Aborting."; exit 1; }
-command -v aclocal >/dev/null 2>&1 || { printf >&2 "\nThe command \"aclocal\" is needed. Please install a respective package and try again. Aborting."; exit 1; }
-command -v automake >/dev/null 2>&1 || { printf >&2 "\nThe command \"automake\" is needed. Please install a respective package and try again. Aborting."; exit 1; }
+command -v make >/dev/null 2>&1 || { printf >&2 "\nThe command \"make\" is needed. Please install a respective package and try again.\nAborting.\n"; exit 1; }
+command -v autoreconf >/dev/null 2>&1 || { printf >&2 "\nThe command \"autoreconf\" is needed. Please install a respective package and try again.\nAborting.\n"; exit 1; }
+command -v autoconf >/dev/null 2>&1 || { printf >&2 "\nThe command \"autoconf\" is needed. Please install a respective package and try again.\nAborting.\n"; exit 1; }
+command -v aclocal >/dev/null 2>&1 || { printf >&2 "\nThe command \"aclocal\" is needed. Please install a respective package and try again.\nAborting.\n"; exit 1; }
+command -v automake >/dev/null 2>&1 || { printf >&2 "\nThe command \"automake\" is needed. Please install a respective package and try again.\nAborting.\n"; exit 1; }
 printf " yes.\n\n"
 
+# Replace SU2 files
 printf "Replacing original SU2 files with preCICE-adapter conforming files..."
-cp ./replacement_files/config_structure.cpp $SU2_HOME/Common/src
-cp ./replacement_files/config_structure.hpp $SU2_HOME/Common/include
-cp ./replacement_files/config_structure.inl $SU2_HOME/Common/include
-cp ./replacement_files/option_structure.hpp $SU2_HOME/Common/include
-cp ./replacement_files/iteration_structure.cpp $SU2_HOME/SU2_CFD/src
-cp ./replacement_files/SU2_CFD.cpp $SU2_HOME/SU2_CFD/src
+cp ./replacement_files/config_structure.cpp $SU2_HOME/Common/src || { printf >&2 "\nCannot copy replacement_files/config_structure.cpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+cp ./replacement_files/config_structure.hpp $SU2_HOME/Common/include || { printf >&2 "\nCannot copy replacement_files/config_structure.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+cp ./replacement_files/config_structure.inl $SU2_HOME/Common/include || { printf >&2 "\nCannot copy replacement_files/config_structure.inl. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+cp ./replacement_files/option_structure.hpp $SU2_HOME/Common/include || { printf >&2 "Cannot copy replacement_files/option_structure.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+cp ./replacement_files/iteration_structure.cpp $SU2_HOME/SU2_CFD/src || { printf >&2 "Cannot copy replacement_files/iteration_structure.cpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+cp ./replacement_files/SU2_CFD.cpp $SU2_HOME/SU2_CFD/src || { printf >&2 "Cannot copy replacement_files/SU2_CFD.cpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 printf " done.\n\n"
 
+# Add adapter files
 printf "Adding preCICE adapter files..."
-cp ./adapter_files/precice.cpp $SU2_HOME/SU2_CFD/src
-cp ./adapter_files/precice.hpp $SU2_HOME/SU2_CFD/include
+cp ./adapter_files/precice.cpp $SU2_HOME/SU2_CFD/src || { printf >&2 "Cannot copy adapter_files/precice.cpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+cp ./adapter_files/precice.hpp $SU2_HOME/SU2_CFD/include || { printf >&2 "Cannot copy adapter_files/precice.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 printf " done.\n\n"
 
+# Replace Makefile
 printf "Replacing original SU2 Makefile with preCICE-adapter conforming Makefile..."
-cp ./replacement_files/Makefile.am $SU2_HOME/SU2_CFD/obj
+cp ./replacement_files/Makefile.am $SU2_HOME/SU2_CFD/obj || { printf >&2 "Cannot copy replacement_files/Makefile.am. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 printf " done.\n\n"
 
+# Autoreconfigure SU2
 printf "Autoreconfiguring due to the changed Makefile...\n"
 cd $SU2_HOME
 autoreconf
 printf "\nAutoreconfiguring done.\n\n"
 
+# Output to guide the user
 printf "\nPlease navigate to the SU2 home directory $SU2_HOME to configure and build SU2 as described in its installation description.\n"
-
 printf "Please enable MPI when configuring SU2.\n\n"
 
-printf "A sample SU2 configure procedure might look like: ./configure --prefix=\$SU2_HOME --enable-mpi --with-cc=mpicc --with-cxx=mpicxx\n"
+# If user already configured SU2 before, print the command as reminder
+if [ -f $SU2_HOME/config.log ]
+then
+    printf "Last time you configured SU2 by invoking:\n"
+    sed '1,10!d' $SU2_HOME/config.log | grep -F "$ ./configure"
+    printf "You may want to reuse this command or adapt it to the following sample:\n"
+fi
+
+# Sample commands for configuring and making SU2
+printf "A sample SU2 configure procedure might look like: ./configure --prefix=\$SU2_HOME --enable-mpi\n"
 printf "A sample SU2 make procedure might look like: make -j 4\n\n"
 
+# Tell the user to adapt dynamic linker search path for preCICE depending on OS
 unamestr=`uname -s`
 if [[ "$unamestr" == 'Linux' ]]; then
    printf "Please add the following line to your ~/.bashrc (for more information refer to the adapter README).\n"
@@ -54,7 +87,8 @@ elif [[ "$unamestr" == 'Darwin' ]]; then
    printf "Please add the following line to your ~/.bash_profile (for more information refer to the adapter README).\n"
    printf "export DYLD_LIBRARY_PATH=\"\$DYLD_LIBRARY_PATH:\$PRECICE_ROOT/build/last\"\n\n"
 else
-   printf "This script may not work on your system.\n\n"
+# Script was designed for Linux and macOS; other OS might work but this is not certain
+   printf "This script may not have executed properly on your system.\n\n"
 fi
 
 printf "Adapter installation completed.\n\n"
