@@ -85,7 +85,5 @@ The adapter is designed such that it can be executed in an intra-parallel manner
     mpirun -n 8 ./SU2_CFD su2ConfigurationFile.cfg
 ```
 
-A testcase is provided with this adapter in the directory `testcase`. 
-
 ## References
 [1] Alexander Rusch. Extending SU2 to fluid-structure interaction via preCICE. Bachelor's thesis, Munich School of Engineering, Technical University of Munich, 2016.
