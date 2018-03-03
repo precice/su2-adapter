@@ -51,16 +51,23 @@ cp ./adapter_files/precice.cpp $SU2_HOME/SU2_CFD/src || { printf >&2 "Cannot cop
 cp ./adapter_files/precice.hpp $SU2_HOME/SU2_CFD/include || { printf >&2 "Cannot copy adapter_files/precice.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 printf " done.\n\n"
 
-# Replace Makefile
-printf "Replacing original SU2 Makefile with preCICE-adapter conforming Makefile..."
+# Add additional files
+printf "Adding additional files..."
+cp ./add_files/ax_cxx_compile_stdcxx.m4 $SU2_HOME/m4 || { printf >&2 "Cannot copy add_files/ax_cxx_compile_stdcxx.m4. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+printf " done.\n\n"
+
+# Replace configure and build related files
+printf "Replacing original configure and build related files..."
+cp ./replacement_files/aclocal.m4 $SU2_HOME || { printf >&2 "Cannot copy replacement_files/aclocal.m4. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+cp ./replacement_files/configure.ac $SU2_HOME || { printf >&2 "Cannot copy replacement_files/configure.ac. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 cp ./replacement_files/Makefile.am $SU2_HOME/SU2_CFD/obj || { printf >&2 "Cannot copy replacement_files/Makefile.am. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 printf " done.\n\n"
 
 # Autoreconfigure SU2
-printf "Autoreconfiguring due to the changed Makefile...\n"
+printf "Autoreconfiguring due to the changed configure and build related files..."
 cd $SU2_HOME
 autoreconf
-printf "\nAutoreconfiguring done.\n\n"
+printf " done.\n\n"
 
 # Output to guide the user
 printf "\nPlease navigate to the SU2 home directory $SU2_HOME to configure and build SU2 as described in its installation description.\n"
