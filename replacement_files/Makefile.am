@@ -143,9 +143,9 @@ su2_cfd_sources = \
   ../src/SU2_CFD.cpp
 
 libSU2Core_cxx_flags = -I$(PRECICE_ROOT)/src/precice -fPIC
-libSU2Core_libadd = $(PRECICE_ROOT)/build/last/libprecice.a
+libSU2Core_libadd =
 
-su2_cfd_cxx_flags = -I$(PRECICE_ROOT)/src/precice
+su2_cfd_cxx_flags =
 su2_cfd_ldadd = -L$(PRECICE_ROOT)/build/last -lprecice
 
 # always link to built dependencies from ./externals
