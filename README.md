@@ -47,7 +47,7 @@ If you do not want to use this script, manually copy the files to the locations 
 
 After copying the adapter files to the correct locations within the SU2 package, SU2 can be configured and built just like the original version of the solver suite. Please refer to the installation instructions provided with the SU2 source code. SU2 should be built with MPI support in order to make use of parallel functionalities. The script *su2AdapterInstall* states recommended command sequences for both the configuration and the building process upon completion of the execution.
 
-The SU2 executable is linked against the dynamic library of preCICE. In order for the executable to find the library at runtime, the dynamic linker search path needs to be adapted manually. The easiest way is to copy the following line into ~/.bashrc (Linux).
+The SU2 executable is linked against the **dynamic library** of preCICE, so make sure you have built it like this. In order for the executable to find the library at runtime, the dynamic linker search path needs to be adapted manually. The easiest way is to copy the following line into ~/.bashrc (Linux).
 ```
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PRECICE_ROOT/build/last"
 ```
