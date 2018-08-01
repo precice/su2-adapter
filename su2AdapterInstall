@@ -99,4 +99,4 @@ else
    printf "This script may not have executed properly on your system.\n\n"
 fi
 
-printf "Adapter installation completed.\n\n"
+printf "Adapter installation completed. Make sure to follow the instructions above to build the adapted SU2.\n\n"
