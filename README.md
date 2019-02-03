@@ -1,3 +1,6 @@
+<a style="text-decoration: none" href="https://travis-ci.org/precice/su2-adapter" target="_blank">
+    <img src="https://travis-ci.org/precice/su2-adapter.svg?branch=master" alt="Build status">
+</a>
 
 # Building and Usage of the preCICE Adapter for SU2
 
