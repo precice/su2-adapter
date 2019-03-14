@@ -84,6 +84,7 @@ AS_IF([test -z "$PYTHON_INCLUDE"], [
 ])
 
 #PKG_PROG_PKG_CONFIG
+PKG_CHECK_MODULES(preCICE, libprecice)
 
 # --------------------------------------------------------------
 # Check for important type sizes

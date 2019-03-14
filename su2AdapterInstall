@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This auxiliary script simplifies the installation of the preCICE-adapter for SU2. It copies the adapted SU2-files to the correct locations based on the environment variables PRECICE_ROOT and SU2_HOME.
+# This auxiliary script simplifies the installation of the preCICE-adapter for SU2. It copies the adapted SU2-files to the correct locations based on the environment variable SU2_HOME.
 # Author: Alexander Rusch
 # SU2 version: 6.0.0 "Falcon"
 
@@ -12,7 +12,6 @@ cd "$(dirname "$0")"
 
 # Check for environment variables
 printf "\nChecking whether the necessary environment variables are set...\n"
-"${PRECICE_ROOT:?You need to set variable PRECICE_ROOT non-empty. Aborting.}"
 "${SU2_HOME:?You need to set variable SU2_HOME non-empty. Aborting.}"
 printf "Necessary environment variables are set.\n"
 
@@ -85,18 +84,5 @@ fi
 # Sample commands for configuring and making SU2
 printf "A sample SU2 configure procedure might look like: ./configure --prefix=\$SU2_HOME --enable-mpi\n"
 printf "A sample SU2 make procedure might look like: make -j 4\n\n"
-
-# Tell the user to adapt dynamic linker search path for preCICE depending on OS
-unamestr=`uname -s`
-if [[ "$unamestr" == 'Linux' ]]; then
-   printf "Please add the following line to your ~/.bashrc (for more information refer to the adapter README).\n"
-   printf "export LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH:\$PRECICE_ROOT/build/last\"\n\n"
-elif [[ "$unamestr" == 'Darwin' ]]; then
-   printf "Please add the following line to your ~/.bash_profile (for more information refer to the adapter README).\n"
-   printf "export DYLD_LIBRARY_PATH=\"\$DYLD_LIBRARY_PATH:\$PRECICE_ROOT/build/last\"\n\n"
-else
-# Script was designed for Linux and macOS; other OS might work but this is not certain
-   printf "This script may not have executed properly on your system.\n\n"
-fi
 
 printf "Adapter installation completed. Make sure to follow the instructions above to build the adapted SU2.\n\n"

@@ -33,10 +33,7 @@ Before installing the adapter SU2 itself must be downloaded from https://github.
 It is assumed that preCICE has been installed successfully beforehand. Concerning installation instructions for preCICE, have a look at the preCICE-wiki pages on GitHub: https://github.com/precice/precice/wiki/Building.
 
 ### Adapter
-In order to run SU2 with the preCICE adapter, some SU2-native solver routines need to be changed. The altered SU2 files are provided with this adapter in the directory "replacement_files". Moreover, preCICE-specific files are contained in the directory "adapter_files". These need to be added to the source code of SU2. A simple shell script called *su2AdapterInstall* comes with the adapter, which automates this process and replaces/copies the adapted and preCICE-specific files to the correct locations within the SU2 package including the appropriately adjusted *Makefile* of SU2. For the script to work correctly, two environment variables need to be set prior to executing it:
-
-1. `PRECICE_ROOT`: Location of preCICE (top-level directory)
-2. `SU2_HOME`: Location of SU2 (top-level directory)
+In order to run SU2 with the preCICE adapter, some SU2-native solver routines need to be changed. The altered SU2 files are provided with this adapter in the directory "replacement_files". Moreover, preCICE-specific files are contained in the directory "adapter_files". These need to be added to the source code of SU2. A simple shell script called *su2AdapterInstall* comes with the adapter, which automates this process and replaces/copies the adapted and preCICE-specific files to the correct locations within the SU2 package including the appropriately adjusted *Makefile* of SU2. For the script to work correctly, the environment variable `SU2_HOME` needs to be set to the location of SU2 (top-level directory).
 
 It is recommended to set these variables permanently in your ~/.bashrc (Linux) or ~/.bash_profile (Mac). After setting these variables the script *su2AdapterInstall* can be run from the directory, in which it is contained:
 
@@ -50,15 +47,7 @@ If you do not want to use this script, manually copy the files to the locations 
 
 After copying the adapter files to the correct locations within the SU2 package, SU2 can be configured and built just like the original version of the solver suite. Please refer to the installation instructions provided with the SU2 source code. SU2 should be built with MPI support in order to make use of parallel functionalities. The script *su2AdapterInstall* states recommended command sequences for both the configuration and the building process upon completion of the execution.
 
-The SU2 executable is linked against the **dynamic library** of preCICE, so make sure you have built it like this. In order for the executable to find the library at runtime, the dynamic linker search path needs to be adapted manually. The easiest way is to copy the following line into ~/.bashrc (Linux).
-```
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PRECICE_ROOT/build/last"
-```
-For Mac-users the respective line, which needs to be added to ~/.bash_profile, is:
-```
-export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:$PRECICE_ROOT/build/last"
-```
-Alternatively, the correct dynamic linker search path can also be defined just for the SU2 executable (and not in ~/.bashrc or ~/.bash_profile).
+The SU2 executable is linked against the **dynamic library** of preCICE, so make sure you have built it like this.
 
 ## Running Simulations
 
