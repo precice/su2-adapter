@@ -62,6 +62,8 @@ private:
 public:
   /*!
   * \brief Constructor of the class.
+  * \param[in] configurationFileName - Name (with path) of the xml configuration
+  *        file to be read.
   * \param[in] solverProcessIndex - Index of this solver Process.
   * \param[in] solverProcessSize - Overall number of solver Processes.
   * \param[in] geometry_container - Contains all geometric information of SU2.
@@ -69,30 +71,12 @@ public:
   * \param[in] config_container - Contains all configuration information of SU2.
   * \param[in] grid_movement - Contains all grid movement information of SU2.
   */
-  Precice( int solverProcessIndex, int solverProcessSize, CGeometry*** geometry_container, CSolver**** solver_container, CConfig** config_container, CVolumetricMovement** grid_movement );
+  Precice( const string& preciceConfigurationFileName, int solverProcessIndex, int solverProcessSize, CGeometry*** geometry_container, CSolver**** solver_container, CConfig** config_container, CVolumetricMovement** grid_movement );
 
   /*!
   * \brief Destructor of the class.
   */
   ~Precice();
-
-  /*!
-  * \brief Configures preCICE from the given xml file.
-  *
-  * Only after the configuration a usable state of a SolverInterface
-  * object is achieved. However, most of the functionalities in preCICE can be
-  * used only after initialize() has been called. Some actions, e.g. specifying
-  * the solvers interface mesh, have to be done before initialize is called.
-  *
-  * In configure, the following is done:
-  * - The XML configuration for preCICE is parsed and all objects containing
-  *   data are created, but not necessarily filled with data.
-  * - If a server is used, communication to that server is established.
-  *
-  * \param[in] configurationFileName - Name (with path) of the xml configuration
-  *        file to be read.
-  */
-  void configure( const string& preciceConfigurationFileName );
 
   /*!
   * \brief Fully initializes preCICE to be used.

@@ -6,11 +6,11 @@
 
 #include "../include/precice.hpp"
 
-Precice::Precice( int solverProcessIndex, int solverProcessSize, CGeometry*** geometry_container, CSolver**** solver_container, CConfig** config_container, CVolumetricMovement** grid_movement )
+Precice::Precice( const string& preciceConfigurationFileName, int solverProcessIndex, int solverProcessSize, CGeometry*** geometry_container, CSolver**** solver_container, CConfig** config_container, CVolumetricMovement** grid_movement )
 :
 solverProcessIndex(solverProcessIndex),
 solverProcessSize(solverProcessSize),
-solverInterface( "SU2_CFD", solverProcessIndex, solverProcessSize ),
+solverInterface( "SU2_CFD", preciceConfigurationFileName, solverProcessIndex, solverProcessSize ),
 nDim(geometry_container[ZONE_0][MESH_0]->GetnDim()),
 geometry_container(geometry_container),
 solver_container(solver_container),
@@ -158,17 +158,6 @@ Precice::~Precice(void) {
   }
   if (solution_time_n1_Saved != NULL) {
     delete [] solution_time_n1_Saved;
-  }
-}
-
-
-void Precice::configure( const string& preciceConfigurationFileName ){
-  if (verbosityLevel_high) {
-    cout << "Process #" << solverProcessIndex << "/" << solverProcessSize-1 << ": Configuring preCICE..." << endl;
-  }
-  solverInterface.configure( preciceConfigurationFileName );
-  if (verbosityLevel_high) {
-    cout << "Process #" << solverProcessIndex << "/" << solverProcessSize-1 << ": ...done configuring preCICE!" << endl;
   }
 }
 
