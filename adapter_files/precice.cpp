@@ -543,7 +543,7 @@ void Precice::saveOldState( bool *StopCalc, double *dt ){
   //Save the time step size
   dt_savedState = *dt;
   //Writing task has been fulfilled successfully
-  solverInterface.fulfilledAction(cowic);
+  solverInterface.markActionFulfilled(cowic);
 }
 
 void Precice::reloadOldState(bool *StopCalc, double *dt){
@@ -578,7 +578,7 @@ void Precice::reloadOldState(bool *StopCalc, double *dt){
   //Reload the time step size
   *dt = dt_savedState;
   //Reading task has been fulfilled successfully
-  solverInterface.fulfilledAction(coric);
+  solverInterface.markActionFulfilled(coric);
 }
 
 void Precice::finalize(){
