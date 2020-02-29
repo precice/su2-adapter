@@ -35,15 +35,15 @@ It is assumed that preCICE has been installed successfully beforehand. Concernin
 ### Adapter
 In order to run SU2 with the preCICE adapter, some SU2-native solver routines need to be changed. The altered SU2 files are provided with this adapter in the directory "replacement_files". Moreover, preCICE-specific files are contained in the directory "adapter_files". These need to be added to the source code of SU2. A simple shell script called *su2AdapterInstall* comes with the adapter, which automates this process and replaces/copies the adapted and preCICE-specific files to the correct locations within the SU2 package including the appropriately adjusted *Makefile* of SU2. For the script to work correctly, the environment variable `SU2_HOME` needs to be set to the location of SU2 (top-level directory).
 
-It is recommended to set these variables permanently in your ~/.bashrc (Linux) or ~/.bash_profile (Mac). After setting these variables the script *su2AdapterInstall* can be run from the directory, in which it is contained:
+It is recommended to set this variable permanently in your ~/.bashrc (Linux) or ~/.bash_profile (Mac). After setting the variable the script *su2AdapterInstall* can be run from the directory, in which it is contained:
 
 ```
 ./su2AdapterInstall
 ```
 
-The script will not execute if the environment variables are unset or empty.
+The script will not execute if the environment variable is not set or empty.
 
-If you do not want to use this script, manually copy the files to the locations given in it. The two environment variables need to be defined as stated above, nevertheless.
+If you do not want to use this script, manually copy the files to the locations given in it. The environment variable needs to be defined as stated above, nevertheless.
 
 After copying the adapter files to the correct locations within the SU2 package, SU2 can be configured and built just like the original version of the solver suite. Please refer to the installation instructions provided with the SU2 source code. SU2 should be built with MPI support in order to make use of parallel functionalities. The script *su2AdapterInstall* states recommended command sequences for both the configuration and the building process upon completion of the execution.
 
