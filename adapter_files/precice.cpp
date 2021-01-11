@@ -6,12 +6,13 @@
 
 #include "../include/precice.hpp"
 
-Precice::Precice(const string& preciceConfigurationFileName, int solverProcessIndex, int solverProcessSize,
-                 CGeometry*** geometry_container, CSolver**** solver_container, CConfig** config_container,
-                 CVolumetricMovement** grid_movement)
+Precice::Precice(const string& preciceConfigurationFileName, const std::string& preciceParticipantName,
+                 const std::string& preciceReadDataName_, const std::string& preciceWriteDataName_,
+                 int solverProcessIndex, int solverProcessSize, CGeometry*** geometry_container,
+                 CSolver**** solver_container, CConfig** config_container, CVolumetricMovement** grid_movement)
     : solverProcessIndex(solverProcessIndex),
       solverProcessSize(solverProcessSize),
-      solverInterface("SU2_CFD", preciceConfigurationFileName, solverProcessIndex, solverProcessSize),
+      solverInterface(preciceParticipantName, preciceConfigurationFileName, solverProcessIndex, solverProcessSize),
       nDim(geometry_container[ZONE_0][MESH_0]->GetnDim()),
       geometry_container(geometry_container),
       solver_container(solver_container),
@@ -34,6 +35,8 @@ Precice::Precice(const string& preciceConfigurationFileName, int solverProcessIn
       valueMarkerWet(NULL),
       vertexSize(NULL),
       indexMarkerWetMappingLocalToGlobal(NULL),
+      preciceReadDataName(preciceReadDataName_),
+      preciceWriteDataName(preciceWriteDataName_),
       // Variables for implicit coupling
       nPoint(geometry_container[ZONE_0][MESH_0]->GetnPoint()),
       nVar(solver_container[ZONE_0][MESH_0][FLOW_SOL]->GetnVar()),
@@ -258,10 +261,11 @@ double Precice::initialize() {
 
       solverInterface.setMeshVertices(meshID[indexMarkerWetMappingLocalToGlobal[i]], vertexSize[i], coords,
                                       vertexIDs[i]);
-      forceID[indexMarkerWetMappingLocalToGlobal[i]] = solverInterface.getDataID(
-          "Forces" + to_string(indexMarkerWetMappingLocalToGlobal[i]), meshID[indexMarkerWetMappingLocalToGlobal[i]]);
+      forceID[indexMarkerWetMappingLocalToGlobal[i]] =
+          solverInterface.getDataID(preciceWriteDataName + to_string(indexMarkerWetMappingLocalToGlobal[i]),
+                                    meshID[indexMarkerWetMappingLocalToGlobal[i]]);
       displDeltaID[indexMarkerWetMappingLocalToGlobal[i]] =
-          solverInterface.getDataID("DisplacementDeltas" + to_string(indexMarkerWetMappingLocalToGlobal[i]),
+          solverInterface.getDataID(preciceReadDataName + to_string(indexMarkerWetMappingLocalToGlobal[i]),
                                     meshID[indexMarkerWetMappingLocalToGlobal[i]]);
     }
     for (int i = 0; i < globalNumberWetSurfaces; i++) {
@@ -273,15 +277,15 @@ double Precice::initialize() {
       }
       if (!flag) {
         solverInterface.setMeshVertices(meshID[i], 0, NULL, NULL);
-        forceID[i] = solverInterface.getDataID("Forces" + to_string(i), meshID[i]);
-        displDeltaID[i] = solverInterface.getDataID("DisplacementDeltas" + to_string(i), meshID[i]);
+        forceID[i] = solverInterface.getDataID(preciceWriteDataName + to_string(i), meshID[i]);
+        displDeltaID[i] = solverInterface.getDataID(preciceReadDataName + to_string(i), meshID[i]);
       }
     }
   } else {
     for (int i = 0; i < globalNumberWetSurfaces; i++) {
       solverInterface.setMeshVertices(meshID[i], 0, NULL, NULL);
-      forceID[i] = solverInterface.getDataID("Forces" + to_string(i), meshID[i]);
-      displDeltaID[i] = solverInterface.getDataID("DisplacementDeltas" + to_string(i), meshID[i]);
+      forceID[i] = solverInterface.getDataID(preciceWriteDataName + to_string(i), meshID[i]);
+      displDeltaID[i] = solverInterface.getDataID(preciceReadDataName + to_string(i), meshID[i]);
     }
   }
 

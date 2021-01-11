@@ -49,6 +49,8 @@ class Precice {
   unsigned long globalNumberWetSurfaces;      // Number of wet surfaces of the whole problem
   unsigned long localNumberWetSurfaces;       // Number of wet surfaces, which this process is actually working on
   short* indexMarkerWetMappingLocalToGlobal;  // Mapping relations for wet surfaces
+  const string preciceReadDataName;
+  const string preciceWriteDataName;
 
   // Variables for storing the old state to reset to in case of an implicit simulation
   int nPoint;  // Overall number of nodes of the problem
@@ -70,9 +72,10 @@ class Precice {
    * \param[in] config_container - Contains all configuration information of SU2.
    * \param[in] grid_movement - Contains all grid movement information of SU2.
    */
-  Precice(const string& preciceConfigurationFileName, int solverProcessIndex, int solverProcessSize,
-          CGeometry*** geometry_container, CSolver**** solver_container, CConfig** config_container,
-          CVolumetricMovement** grid_movement);
+  Precice(const string& preciceConfigurationFileName, const string& preciceParticipantName,
+          const string& preciceReadDataName, const string& preciceWriteDataName, int solverProcessIndex,
+          int solverProcessSize, CGeometry*** geometry_container, CSolver**** solver_container,
+          CConfig** config_container, CVolumetricMovement** grid_movement);
 
   /*!
    * \brief Destructor of the class.
