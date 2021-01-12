@@ -41,6 +41,7 @@ class Precice {
   int* displDeltaID;
   double* forces;
   double* displacements;
+  double* displacements_n;
   double* displacementDeltas;
   const string& coric;
   const string& cowic;
@@ -60,6 +61,9 @@ class Precice {
   double dt_savedState;
   bool StopCalc_savedState;
   double **solution_Saved, **solution_time_n_Saved, **solution_time_n1_Saved;
+
+  // TODO: Add a string.find option
+  const bool dataTypeDisplacement = false;
 
  public:
   /*!
