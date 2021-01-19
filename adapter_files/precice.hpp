@@ -53,6 +53,7 @@ class Precice {
   const string preciceReadDataName;
   const string preciceWriteDataName;
   const string preciceMeshName;
+  const bool dataTypeDisplacement;
 
   // Variables for storing the old state to reset to in case of an implicit simulation
   int nPoint;  // Overall number of nodes of the problem
@@ -61,9 +62,6 @@ class Precice {
   double dt_savedState;
   bool StopCalc_savedState;
   double **solution_Saved, **solution_time_n_Saved, **solution_time_n1_Saved;
-
-  // TODO: Add a string.find option
-  const bool dataTypeDisplacement = false;
 
  public:
   /*!

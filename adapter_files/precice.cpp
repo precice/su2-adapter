@@ -41,6 +41,7 @@ Precice::Precice(const string& preciceConfigurationFileName, const std::string& 
       preciceReadDataName(preciceReadDataName_),
       preciceWriteDataName(preciceWriteDataName_),
       preciceMeshName(preciceMeshName_),
+      dataTypeDisplacement(preciceReadDataName.find("Delta") != std::string::npos),
       // Variables for implicit coupling
       nPoint(geometry_container[ZONE_0][MESH_0]->GetnPoint()),
       nVar(solver_container[ZONE_0][MESH_0][FLOW_SOL]->GetnVar()),
@@ -166,7 +167,9 @@ Precice::~Precice(void) {
   if (solution_time_n1_Saved != NULL) {
     delete[] solution_time_n1_Saved;
   }
-  // TODO: Delete displacement_n
+  if (displacement_n != NULL) {
+    delete[] displacement_n;
+  }
 }
 
 double Precice::initialize() {
