@@ -167,8 +167,8 @@ Precice::~Precice(void) {
   if (solution_time_n1_Saved != NULL) {
     delete[] solution_time_n1_Saved;
   }
-  if (displacement_n != NULL) {
-    delete[] displacement_n;
+  if (displacements_n != NULL) {
+    delete[] displacements_n;
   }
 }
 
