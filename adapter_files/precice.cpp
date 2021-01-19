@@ -187,7 +187,7 @@ double Precice::initialize() {
     displDeltaID = new int[globalNumberWetSurfaces];
     for (int i = 0; i < globalNumberWetSurfaces; i++) {
       // Get preCICE meshIDs
-      meshID[i] = solverInterface.getMeshID(preciceMeshName  + to_string(i));
+      meshID[i] = solverInterface.getMeshID(preciceMeshName + (i == 0 ? "" : to_string(i)));
     }
   }
 
@@ -195,9 +195,9 @@ double Precice::initialize() {
   // respective preCICE-related tasks
   for (int i = 0; i < globalNumberWetSurfaces; i++) {
     if (config_container[ZONE_0]->GetMarker_All_TagBound(config_container[ZONE_0]->GetpreCICE_WetSurfaceMarkerName() +
-                                                         to_string(i)) == -1) {
+                                                         (i == 0 ? "" : to_string(i))) == -1) {
       cout << "Process #" << solverProcessIndex << "/" << solverProcessSize - 1 << ": Does not work on "
-           << config_container[ZONE_0]->GetpreCICE_WetSurfaceMarkerName() << i << endl;
+           << config_container[ZONE_0]->GetpreCICE_WetSurfaceMarkerName() << (i == 0 ? "" : to_string(i)) << endl;
     } else {
       localNumberWetSurfaces++;
     }
@@ -216,9 +216,9 @@ double Precice::initialize() {
     int j = 0;
     for (int i = 0; i < globalNumberWetSurfaces; i++) {
       if (config_container[ZONE_0]->GetMarker_All_TagBound(config_container[ZONE_0]->GetpreCICE_WetSurfaceMarkerName() +
-                                                           to_string(i)) != -1) {
+                                                           (i == 0 ? "" : to_string(i))) != -1) {
         valueMarkerWet[j] = config_container[ZONE_0]->GetMarker_All_TagBound(
-            config_container[ZONE_0]->GetpreCICE_WetSurfaceMarkerName() + to_string(i));
+            config_container[ZONE_0]->GetpreCICE_WetSurfaceMarkerName() + (i == 0 ? "" : to_string(i)));
         indexMarkerWetMappingLocalToGlobal[j] = i;
         j++;
       }
@@ -263,12 +263,14 @@ double Precice::initialize() {
 
       solverInterface.setMeshVertices(meshID[indexMarkerWetMappingLocalToGlobal[i]], vertexSize[i], coords,
                                       vertexIDs[i]);
-      forceID[indexMarkerWetMappingLocalToGlobal[i]] =
-          solverInterface.getDataID(preciceWriteDataName + to_string(indexMarkerWetMappingLocalToGlobal[i]),
-                                    meshID[indexMarkerWetMappingLocalToGlobal[i]]);
-      displDeltaID[indexMarkerWetMappingLocalToGlobal[i]] =
-          solverInterface.getDataID(preciceReadDataName + to_string(indexMarkerWetMappingLocalToGlobal[i]),
-                                    meshID[indexMarkerWetMappingLocalToGlobal[i]]);
+      forceID[indexMarkerWetMappingLocalToGlobal[i]] = solverInterface.getDataID(
+          preciceWriteDataName +
+              (indexMarkerWetMappingLocalToGlobal[i] == 0 ? "" : to_string(indexMarkerWetMappingLocalToGlobal[i])),
+          meshID[indexMarkerWetMappingLocalToGlobal[i]]);
+      displDeltaID[indexMarkerWetMappingLocalToGlobal[i]] = solverInterface.getDataID(
+          preciceReadDataName +
+              (indexMarkerWetMappingLocalToGlobal[i] == 0 ? "" : to_string(indexMarkerWetMappingLocalToGlobal[i])),
+          meshID[indexMarkerWetMappingLocalToGlobal[i]]);
     }
     for (int i = 0; i < globalNumberWetSurfaces; i++) {
       bool flag = false;
@@ -279,15 +281,15 @@ double Precice::initialize() {
       }
       if (!flag) {
         solverInterface.setMeshVertices(meshID[i], 0, NULL, NULL);
-        forceID[i] = solverInterface.getDataID(preciceWriteDataName + to_string(i), meshID[i]);
-        displDeltaID[i] = solverInterface.getDataID(preciceReadDataName + to_string(i), meshID[i]);
+        forceID[i] = solverInterface.getDataID(preciceWriteDataName + (i == 0 ? "" : to_string(i)), meshID[i]);
+        displDeltaID[i] = solverInterface.getDataID(preciceReadDataName + (i == 0 ? "" : to_string(i)), meshID[i]);
       }
     }
   } else {
     for (int i = 0; i < globalNumberWetSurfaces; i++) {
       solverInterface.setMeshVertices(meshID[i], 0, NULL, NULL);
-      forceID[i] = solverInterface.getDataID(preciceWriteDataName + to_string(i), meshID[i]);
-      displDeltaID[i] = solverInterface.getDataID(preciceReadDataName + to_string(i), meshID[i]);
+      forceID[i] = solverInterface.getDataID(preciceWriteDataName + (i == 0 ? "" : to_string(i)), meshID[i]);
+      displDeltaID[i] = solverInterface.getDataID(preciceReadDataName + (i == 0 ? "" : to_string(i)), meshID[i]);
     }
   }
 
