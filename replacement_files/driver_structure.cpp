@@ -3387,8 +3387,9 @@ void CDriver::StartSolver() {
   if (precice_usage) {
     precice = new Precice(
         config_container[ZONE_0]->GetpreCICE_ConfigFileName(), config_container[ZONE_0]->GetpreCICE_ParticipantName(),
-        config_container[ZONE_0]->GetpreCICE_ReadDataName(), config_container[ZONE_0]->GetpreCICE_WriteDataName(), rank,
-        size, geometry_container, solver_container, config_container, grid_movement);
+        config_container[ZONE_0]->GetpreCICE_ReadDataName(), config_container[ZONE_0]->GetpreCICE_WriteDataName(),
+        config_container[ZONE_0]->GetpreCICE_MeshName(), rank, size, geometry_container, solver_container,
+        config_container, grid_movement);
     dt = new double(config_container[ZONE_0]->GetDelta_UnstTimeND());
     max_precice_dt = new double(precice->initialize());
   }

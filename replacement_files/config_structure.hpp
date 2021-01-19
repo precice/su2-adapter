@@ -988,6 +988,7 @@ class CConfig {
   unsigned long precice_numberWetSurfaces;   /*!< \brief Number of different wet surfaces */
   string preciceConfigFileName;              /*!< \brief Name of the preCICE configuration file */
   string preciceParticipantName;             /*!< \brief Name of the participant in the preCICE configuration file */
+  string preciceMeshName;                    /*!< \brief Name of the mesh in the preCICE configuration file */
   string preciceReadDataName;                /*!< \brief Name of the read data in the preCICE configuration file */
   string preciceWriteDataName;               /*!< \brief Name of the write data in the preCICE configuration file */
   string preciceWetSurfaceMarkerName; /*!< \brief Name of the wet surface marker (from the mesh file) that the preCICE
@@ -7916,20 +7917,26 @@ class CConfig {
   string GetpreCICE_ConfigFileName(void);
 
   /*!
-   * \brief Get the name of the preCICE configuration file
-   * \return preCICE configuration file name as string
+   * \brief Get the name of the participant in the preCICE configuration file
+   * \return preCICE participant name as string
    */
   string GetpreCICE_ParticipantName(void);
 
   /*!
-   * \brief Get the name of the preCICE configuration file
-   * \return preCICE configuration file name as string
+   * \brief Get the name of the coupling mesh in the preCICE configuration file
+   * \return preCICE coupling mesh name as string
+   */
+  string GetpreCICE_MeshName(void);
+
+  /*!
+   * \brief Get the name of the read data in the preCICE configuration file
+   * \return preCICE read data name as string
    */
   string GetpreCICE_ReadDataName(void);
 
   /*!
-   * \brief Get the name of the preCICE configuration file
-   * \return preCICE configuration file name as string
+   * \brief Get the name of the write data in the preCICE configuration file
+   * \return preCICE write data name as string
    */
   string GetpreCICE_WriteDataName(void);
 

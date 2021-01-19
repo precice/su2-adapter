@@ -1751,6 +1751,8 @@ inline string CConfig::GetpreCICE_ConfigFileName(void) { return preciceConfigFil
 
 inline string CConfig::GetpreCICE_ParticipantName(void) { return preciceParticipantName; }
 
+inline string CConfig::GetpreCICE_MeshName(void) { return preciceMeshName; }
+
 inline string CConfig::GetpreCICE_ReadDataName(void) { return preciceReadDataName; }
 
 inline string CConfig::GetpreCICE_WriteDataName(void) { return preciceWriteDataName; }

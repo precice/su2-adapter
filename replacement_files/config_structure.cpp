@@ -2280,6 +2280,9 @@ void CConfig::SetConfig_Options(unsigned short val_iZone, unsigned short val_nZo
   /* DESCRIPTION:  Name of the participant in the preCICE configuration file */
   addStringOption("PRECICE_PARTICIPANT_NAME", preciceParticipantName, string("SU2"));
 
+  /* DESCRIPTION:  Name of the mesh in the preCICE configuration file */
+  addStringOption("PRECICE_MESH_NAME", preciceMeshName, string("SU2-Mesh"));
+
   /* DESCRIPTION:  Name of the read data in the preCICE configuration file */
   addStringOption("PRECICE_READ_DATA_NAME", preciceReadDataName, string("Displacements"));
 

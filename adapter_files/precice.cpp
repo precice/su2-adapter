@@ -8,8 +8,9 @@
 
 Precice::Precice(const string& preciceConfigurationFileName, const std::string& preciceParticipantName,
                  const std::string& preciceReadDataName_, const std::string& preciceWriteDataName_,
-                 int solverProcessIndex, int solverProcessSize, CGeometry*** geometry_container,
-                 CSolver**** solver_container, CConfig** config_container, CVolumetricMovement** grid_movement)
+                 const std::string& preciceMeshName_, int solverProcessIndex, int solverProcessSize,
+                 CGeometry*** geometry_container, CSolver**** solver_container, CConfig** config_container,
+                 CVolumetricMovement** grid_movement)
     : solverProcessIndex(solverProcessIndex),
       solverProcessSize(solverProcessSize),
       solverInterface(preciceParticipantName, preciceConfigurationFileName, solverProcessIndex, solverProcessSize),
@@ -37,6 +38,7 @@ Precice::Precice(const string& preciceConfigurationFileName, const std::string& 
       indexMarkerWetMappingLocalToGlobal(NULL),
       preciceReadDataName(preciceReadDataName_),
       preciceWriteDataName(preciceWriteDataName_),
+      preciceMeshName(preciceMeshName_),
       // Variables for implicit coupling
       nPoint(geometry_container[ZONE_0][MESH_0]->GetnPoint()),
       nVar(solver_container[ZONE_0][MESH_0][FLOW_SOL]->GetnVar()),
