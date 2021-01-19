@@ -187,7 +187,7 @@ double Precice::initialize() {
     displDeltaID = new int[globalNumberWetSurfaces];
     for (int i = 0; i < globalNumberWetSurfaces; i++) {
       // Get preCICE meshIDs
-      meshID[i] = solverInterface.getMeshID("SU2_Mesh" + to_string(i));
+      meshID[i] = solverInterface.getMeshID(preciceMeshName  + to_string(i));
     }
   }
 
