@@ -41,7 +41,6 @@ Precice::Precice(const string& preciceConfigurationFileName, const std::string& 
       preciceReadDataName(preciceReadDataName_),
       preciceWriteDataName(preciceWriteDataName_),
       preciceMeshName(preciceMeshName_),
-      dataTypeDisplacement(preciceReadDataName.find("Delta") == std::string::npos),
       // Variables for implicit coupling
       nPoint(geometry_container[ZONE_0][MESH_0]->GetnPoint()),
       nVar(solver_container[ZONE_0][MESH_0][FLOW_SOL]->GetnVar()),
@@ -56,6 +55,11 @@ Precice::Precice(const string& preciceConfigurationFileName, const std::string& 
       solution_Saved(NULL),
       solution_time_n_Saved(NULL),
       solution_time_n1_Saved(NULL) {
+  if (preciceReadDataName.find("Delta") == std::string::npos)
+    readDataType = ReadDataType::Displacement;
+  else
+    readDataType = ReadDataType::DisplacementDelta;
+
   Coord_Saved = new double*[nPoint];
   Coord_n_Saved = new double*[nPoint];
   Coord_n1_Saved = new double*[nPoint];
@@ -278,7 +282,7 @@ double Precice::initialize() {
               (indexMarkerWetMappingLocalToGlobal[i] == 0 ? "" : to_string(indexMarkerWetMappingLocalToGlobal[i])),
           meshID[indexMarkerWetMappingLocalToGlobal[i]]);
 
-      if (dataTypeDisplacement) {
+      if (readDataType == ReadDataType::Displacement) {
         displacements_n = new double[vertexSize[i] * nDim];
         for (int iVertex = 0; iVertex < vertexSize[i]; iVertex++) {
           for (int iDim = 0; iDim < nDim; iDim++) {
@@ -524,14 +528,19 @@ double Precice::advance(double computedTimestepLength) {
       double displacementDeltas_su2[vertexSize[i]][nDim]; /*--- displacementDeltas will be stored such, before
                                                              converting to simple array ---*/
 
-      if (!dataTypeDisplacement) {
-        displacementDeltas = new double[vertexSize[i] * nDim];
-        solverInterface.readBlockVectorData(displDeltaID[indexMarkerWetMappingLocalToGlobal[i]], vertexSize[i],
-                                            vertexIDs[i], displacementDeltas);
-      } else {
-        displacements = new double[vertexSize[i] * nDim];
-        solverInterface.readBlockVectorData(displDeltaID[indexMarkerWetMappingLocalToGlobal[i]], vertexSize[i],
-                                            vertexIDs[i], displacements);
+      switch (readDataType) {
+        case ReadDataType::DisplacementDelta: {
+          displacementDeltas = new double[vertexSize[i] * nDim];
+          solverInterface.readBlockVectorData(displDeltaID[indexMarkerWetMappingLocalToGlobal[i]], vertexSize[i],
+                                              vertexIDs[i], displacementDeltas);
+          break;
+        }
+        case ReadDataType::Displacement: {
+          displacements = new double[vertexSize[i] * nDim];
+          solverInterface.readBlockVectorData(displDeltaID[indexMarkerWetMappingLocalToGlobal[i]], vertexSize[i],
+                                              vertexIDs[i], displacements);
+          break;
+        }
       }
 
       if (verbosityLevel_high) {
@@ -549,25 +558,31 @@ double Precice::advance(double computedTimestepLength) {
              << "..." << endl;
       }
       // convert displacementDeltas into displacementDeltas_su2
-      if (!dataTypeDisplacement) {
-        // convert displacementDeltas into displacementDeltas_su2
-        for (int iVertex = 0; iVertex < vertexSize[i]; iVertex++) {
-          for (int iDim = 0; iDim < nDim; iDim++) {
-            displacementDeltas_su2[iVertex][iDim] = displacementDeltas[iVertex * nDim + iDim];
-          }
-        }
-      } else {
-        for (int iVertex = 0; iVertex < vertexSize[i]; iVertex++) {
-          for (int iDim = 0; iDim < nDim; iDim++) {
-            displacementDeltas_su2[iVertex][iDim] =
-                displacements[iVertex * nDim + iDim] - displacements_n[iVertex * nDim + iDim];
-
-            if (solverInterface.isTimeWindowComplete()) {
-              displacements_n[iVertex * nDim + iDim] = displacements[iVertex * nDim + iDim];
+      switch (readDataType) {
+        case ReadDataType::DisplacementDelta: {
+          // convert displacementDeltas into displacementDeltas_su2
+          for (int iVertex = 0; iVertex < vertexSize[i]; iVertex++) {
+            for (int iDim = 0; iDim < nDim; iDim++) {
+              displacementDeltas_su2[iVertex][iDim] = displacementDeltas[iVertex * nDim + iDim];
             }
           }
+          break;
+        }
+        case ReadDataType::Displacement: {
+          for (int iVertex = 0; iVertex < vertexSize[i]; iVertex++) {
+            for (int iDim = 0; iDim < nDim; iDim++) {
+              displacementDeltas_su2[iVertex][iDim] =
+                  displacements[iVertex * nDim + iDim] - displacements_n[iVertex * nDim + iDim];
+
+              if (solverInterface.isTimeWindowComplete()) {
+                displacements_n[iVertex * nDim + iDim] = displacements[iVertex * nDim + iDim];
+              }
+            }
+          }
+          break;
         }
       }
+
       if (displacementDeltas != NULL) {
         delete[] displacementDeltas;
       }
