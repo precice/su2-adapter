@@ -541,6 +541,8 @@ double Precice::advance(double computedTimestepLength) {
                                               vertexIDs[i], displacements);
           break;
         }
+        default:
+          assert(false);
       }
 
       if (verbosityLevel_high) {
