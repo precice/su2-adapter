@@ -2275,7 +2275,7 @@ void CConfig::SetConfig_Options(unsigned short val_iZone, unsigned short val_nZo
   addBoolOption("PRECICE_LOADRAMPING", precice_loadRamping, false);
 
   /* DESCRIPTION:  preCICE configuration file name */
-  addStringOption("PRECICE_CONFIG_FILENAME", preciceConfigFileName, string("precice.xml"));
+  addStringOption("PRECICE_CONFIG_FILENAME", preciceConfigFileName, string("precice-config.xml"));
 
   /* DESCRIPTION:  Name of the participant in the preCICE configuration file */
   addStringOption("PRECICE_PARTICIPANT_NAME", preciceParticipantName, string("SU2"));
