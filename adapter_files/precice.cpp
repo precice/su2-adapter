@@ -583,6 +583,8 @@ double Precice::advance(double computedTimestepLength) {
           }
           break;
         }
+        default:
+          assert(false);
       }
 
       if (displacementDeltas != NULL) {
