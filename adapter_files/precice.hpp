@@ -19,6 +19,11 @@ using namespace std;
  */
 class Precice {
  private:
+  enum class ReadDataType : unsigned {
+    Displacement,                // Read absolute displacements
+    DisplacementDelta = 1 << 0,  // Read incremental displacement
+  };
+
   // MPI-rank(=index) and size
   int solverProcessIndex, solverProcessSize;
   // Coupling interface object
@@ -41,6 +46,7 @@ class Precice {
   int* displDeltaID;
   double* forces;
   double* displacements;
+  double* displacements_n;
   double* displacementDeltas;
   const string& coric;
   const string& cowic;
@@ -52,6 +58,7 @@ class Precice {
   const string preciceReadDataName;
   const string preciceWriteDataName;
   const string preciceMeshName;
+  ReadDataType readDataType;
 
   // Variables for storing the old state to reset to in case of an implicit simulation
   int nPoint;  // Overall number of nodes of the problem
