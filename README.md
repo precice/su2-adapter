@@ -27,7 +27,11 @@ This adapter was developed for SU2 version 6.0.0 "Falcon". Other versions may be
 ## Building the Adapter
 
 ### SU2
-Before installing the adapter SU2 itself must be downloaded from https://github.com/su2code/SU2. If necessary unpack the code and move it to your preferred location. Please do not configure and build the package before installing the adapter. In case you have already used SU2 you will need to rebuild the suite after installing the adapter.
+Before installing the adapter SU2 itself must be installed. Download version 6.0.0 directly from https://github.com/su2code/SU2/releases/tag/v6.0.0. Using a different version is not recommended, since the adapter is only tested with this version. If necessary unpack the code and move it to your preferred location. Please do not configure and build the package before installing the adapter. In case you have already used SU2 you will need to rebuild the suite after installing the adapter.
+
+**Troubleshooting**
+
+* If you run `./configure --prefix=$SU2_HOME` and get the error `configure: error: cannot find python-config for /usr/bin/python`, check via `ls /usr/bin` whether there is a `python-config` and/or `python2.7-config`. If not, you can create a symbolic link via `ln /usr/bin/python3-config /usr/bin/python-config` such that `python-config` uses `python3-config`.
 
 ### preCICE
 It is assumed that preCICE has been installed successfully beforehand. Concerning installation instructions for preCICE, have a look at the preCICE-wiki pages on GitHub: https://github.com/precice/precice/wiki/Building.
