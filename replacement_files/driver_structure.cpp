@@ -3400,7 +3400,7 @@ void CDriver::StartSolver() {
     cout << endl << "------------------------------ Begin Solver -----------------------------" << endl;
 
   // preCICE
-  while ((ExtIter < config_container[ZONE_0]->GetnExtIter() && precice_usage && precice->isCouplingOngoing()) ||
+  while ((precice_usage && precice->isCouplingOngoing()) ||
          (ExtIter < config_container[ZONE_0]->GetnExtIter() && !precice_usage)) {
     // preCICE implicit coupling: saveOldState()
     if (precice_usage && precice->isActionRequired(precice->getCowic())) {
@@ -3464,8 +3464,8 @@ void CDriver::StartSolver() {
     Output(ExtIter, suppress_output_by_preCICE);
 
     /*--- If the convergence criteria has been met, terminate the simulation. ---*/
-
-    if (StopCalc) break;
+    
+    if (!precice_usage && StopCalc) break;
 
     ExtIter++;
   }
