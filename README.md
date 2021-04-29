@@ -1,10 +1,4 @@
-<a style="text-decoration: none" href="https://travis-ci.org/precice/su2-adapter" target="_blank">
-    <img src="https://travis-ci.org/precice/su2-adapter.svg?branch=master" alt="Build status">
-</a>
-
-:heart: **This adapter needs a maintainer. [Read more here](https://github.com/precice/su2-adapter/issues/16).** :heart:
-
-# Building and Usage of the preCICE Adapter for SU2
+# SU2-preCICE adapter
 
 The adapter for the CFD-Code "Stanford University Unstructured" (SU2) was developed in the scope of the [bachelor's thesis of Alexander Rusch](https://www5.in.tum.de/pub/Rusch2016_BA.pdf).
 All steps for integrating the adapter into SU2 are described in detail in the appendices of the thesis. Note that by now, the adapter has been extended with new functionalities, which are not covered in the thesis. However, the basic structure of the adapter has remained unchanged and can be studied by means of this work.
