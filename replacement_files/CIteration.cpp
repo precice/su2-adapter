@@ -149,7 +149,7 @@ void CIteration::SetGrid_Movement(CGeometry** geometry, CSurfaceMovement* surfac
   
   
   //preCICE
-  if (config->GetSurface_Movement(PRECICE_MOVEMENT)
+  if (config->GetSurface_Movement(PRECICE_MOVEMENT))
   {
 	  //Most of this section just seemed pretty much copied and pasted from the aeroelastic section, so just updated lines doing same
 	  if (rank == MASTER_NODE)

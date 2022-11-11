@@ -129,7 +129,7 @@ void CSinglezoneDriver::StartSolver() {
 	if (precice_usage && precice->isActionRequired(precice->getCoric())) {
 	  // Stay at the same iteration number if preCICE is not converged and reload to the state before the current
 	  // iteration
-	  ExtIter--;
+	  TimeIter--;
 	  precice->reloadOldState(&StopCalc, dt);
 	  suppress_output_by_preCICE = true;
 	}

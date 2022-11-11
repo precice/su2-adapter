@@ -82,11 +82,11 @@ class Precice {
    */
   Precice(const string& preciceConfigurationFileName, const string& preciceParticipantName,
           const string& preciceReadDataName, const string& preciceWriteDataName, const string& preciceMeshName,
-          int solverProcessIndex, int solverProcessSize, CGeometry*** geometry_container, CSolver**** solver_container,
-          CConfig** config_container, CVolumetricMovement** grid_movement);
+          int solverProcessIndex, int solverProcessSize, CGeometry**** geometry_container, CSolver***** solver_container,
+          CConfig** config_container, CVolumetricMovement*** grid_movement);
 
   /*!
-   * \brief Destructor of the class.
+   * \brief Destructor of the class
    */
   ~Precice();
 
