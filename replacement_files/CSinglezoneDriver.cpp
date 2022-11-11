@@ -52,6 +52,17 @@ void CSinglezoneDriver::StartSolver() {
 
   config_container[ZONE_0]->Set_StartTime(StartTime);
 
+  // preCICE
+  precice_usage = config_container[ZONE_0]->GetpreCICE_Usage();
+  if (precice_usage) {
+	precice = new Precice(
+		config_container[ZONE_0]->GetpreCICE_ConfigFileName(), config_container[ZONE_0]->GetpreCICE_ParticipantName(),
+		config_container[ZONE_0]->GetpreCICE_ReadDataName(), config_container[ZONE_0]->GetpreCICE_WriteDataName(),
+		config_container[ZONE_0]->GetpreCICE_MeshName(), rank, size, geometry_container, solver_container,
+		config_container, grid_movement);
+	dt = new double(config_container[ZONE_0]->GetDelta_UnstTimeND());
+	max_precice_dt = new double(precice->initialize());
+  }
   /*--- Main external loop of the solver. Runs for the number of time steps required. ---*/
 
   if (rank == MASTER_NODE)
@@ -69,8 +80,21 @@ void CSinglezoneDriver::StartSolver() {
     TimeIter = config_container[ZONE_0]->GetRestart_Iter();
 
   /*--- Run the problem until the number of time iterations required is reached. ---*/
-  while ( TimeIter < config_container[ZONE_0]->GetnTime_Iter() ) {
+  //preCICE
+  while ( (precice_usage && precice->isCouplingOngoing()) || (TimeIter < config_container[ZONE_0]->GetnTime_Iter() && !precice_usage) ) {
 
+
+	// preCICE implicit coupling: saveOldState()
+	if (precice_usage && precice->isActionRequired(precice->getCowic())) {
+	  precice->saveOldState(&StopCalc, dt);
+	}
+
+	// preCICE - set minimal time step size as new time step size in SU2
+	if (precice_usage) {
+	  dt = min(max_precice_dt, dt);
+	  config_container[ZONE_0]->SetDelta_UnstTimeND(*dt);
+	}
+	
     /*--- Perform some preprocessing before starting the time-step simulation. ---*/
 
     Preprocess(TimeIter);
@@ -91,9 +115,26 @@ void CSinglezoneDriver::StartSolver() {
 
     Monitor(TimeIter);
 
+
+	// preCICE - Advancing
+	if (precice_usage) {
+	  *max_precice_dt = precice->advance(*dt);
+	}
+	
     /*--- Output the solution in files. ---*/
 
-    Output(TimeIter);
+
+	// preCICE implicit coupling: reloadOldState()
+	bool suppress_output_by_preCICE = false;
+	if (precice_usage && precice->isActionRequired(precice->getCoric())) {
+	  // Stay at the same iteration number if preCICE is not converged and reload to the state before the current
+	  // iteration
+	  ExtIter--;
+	  precice->reloadOldState(&StopCalc, dt);
+	  suppress_output_by_preCICE = true;
+	}
+	// preCICE
+    Output(TimeIter, suppress_output_by_preCICE);
 
     /*--- Save iteration solution for libROM ---*/
     if (config_container[MESH_0]->GetSave_libROM()) {
@@ -102,8 +143,8 @@ void CSinglezoneDriver::StartSolver() {
     }
 
     /*--- If the convergence criteria has been met, terminate the simulation. ---*/
-
-    if (StopCalc) break;
+	//preCICE
+    if (StopCalc && !precice_usage) break;
 
     TimeIter++;
 
@@ -190,7 +231,7 @@ void CSinglezoneDriver::Update() {
 
 }
 
-void CSinglezoneDriver::Output(unsigned long TimeIter) {
+void CSinglezoneDriver::Output(unsigned long TimeIter, bool suppress_output_by_preCICE) {
 
   /*--- Time the output for performance benchmarking. ---*/
 
