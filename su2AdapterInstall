@@ -52,4 +52,4 @@ printf " done.\n\n"
 printf "\nPlease navigate to the SU2 home directory $SU2_HOME to configure and build SU2 as described in its installation description.\n"
 printf "Please enable MPI when configuring SU2.\n\n"
 
-printf "Adapter installation completed."
+printf "Adapter installation completed.\n\n"

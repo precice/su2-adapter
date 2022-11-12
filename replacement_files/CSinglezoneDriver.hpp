@@ -29,7 +29,6 @@
 #pragma once
 #include "CDriver.hpp"
 
-
 // preCICE
 // This forward declaration of the Precice class is necessary to avoid a cyclic inclusion issue
 class Precice;
