@@ -9,12 +9,12 @@
 Precice::Precice(const string& preciceConfigurationFileName, const std::string& preciceParticipantName,
                  const std::string& preciceReadDataName_, const std::string& preciceWriteDataName_,
                  const std::string& preciceMeshName_, int solverProcessIndex, int solverProcessSize,
-                 CGeometry*** geometry_container, CSolver**** solver_container, CConfig** config_container,
-                 CVolumetricMovement** grid_movement)
+                 CGeometry**** geometry_container, CSolver***** solver_container, CConfig** config_container,
+                 CVolumetricMovement*** grid_movement)
     : solverProcessIndex(solverProcessIndex),
       solverProcessSize(solverProcessSize),
       solverInterface(preciceParticipantName, preciceConfigurationFileName, solverProcessIndex, solverProcessSize),
-      nDim(geometry_container[ZONE_0][MESH_0]->GetnDim()),
+      nDim(geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim()),
       geometry_container(geometry_container),
       solver_container(solver_container),
       config_container(config_container),
@@ -42,8 +42,8 @@ Precice::Precice(const string& preciceConfigurationFileName, const std::string& 
       preciceWriteDataName(preciceWriteDataName_),
       preciceMeshName(preciceMeshName_),
       // Variables for implicit coupling
-      nPoint(geometry_container[ZONE_0][MESH_0]->GetnPoint()),
-      nVar(solver_container[ZONE_0][MESH_0][FLOW_SOL]->GetnVar()),
+      nPoint(geometry_container[ZONE_0][INST_0][MESH_0]->GetnPoint()),
+      nVar(solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetnVar()),
       Coord_Saved(NULL),
       Coord_n_Saved(NULL),
       Coord_n1_Saved(NULL),
@@ -182,7 +182,7 @@ double Precice::initialize() {
   }
 
   // Checking for dimensional consistency of SU2 and preCICE - Exit if not consistent
-  if (solverInterface.getDimensions() != geometry_container[ZONE_0][MESH_0]->GetnDim()) {
+  if (solverInterface.getDimensions() != geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim()) {
     cout << "Dimensions of SU2 and preCICE are not equal! Now exiting..." << endl;
     exit(EXIT_FAILURE);
   }
@@ -239,7 +239,7 @@ double Precice::initialize() {
   if (processWorkingOnWetSurface) {
     vertexSize = new unsigned long[localNumberWetSurfaces];
     for (int i = 0; i < localNumberWetSurfaces; i++) {
-      vertexSize[i] = geometry_container[ZONE_0][MESH_0]->nVertex[valueMarkerWet[i]];
+      vertexSize[i] = geometry_container[ZONE_0][INST_0][MESH_0]->nVertex[valueMarkerWet[i]];
 
       double coupleNodeCoord[vertexSize[i]][nDim]; /*--- coordinates of all nodes at the wet surface ---*/
 
@@ -247,15 +247,15 @@ double Precice::initialize() {
       // Loop over the vertices of the (each) boundary
       for (int iVertex = 0; iVertex < vertexSize[i]; iVertex++) {
         // Get node number (= index) to vertex (= node)
-        iNode = geometry_container[ZONE_0][MESH_0]->vertex[valueMarkerWet[i]][iVertex]->GetNode();
+        iNode = geometry_container[ZONE_0][INST_0][MESH_0]->vertex[valueMarkerWet[i]][iVertex]->GetNode();
 
         // Get coordinates for nodes
         for (int iDim = 0; iDim < nDim; iDim++) {
-          coupleNodeCoord[iVertex][iDim] = geometry_container[ZONE_0][MESH_0]->node[iNode]->GetCoord(iDim);
+          coupleNodeCoord[iVertex][iDim] = geometry_container[ZONE_0][INST_0][MESH_0]->node[iNode]->GetCoord(iDim);
           if (verbosityLevel_high) {
             cout << "Process #" << solverProcessIndex << "/" << solverProcessSize - 1
                  << ": Initial coordinates of node (local index, global index, node color): (" << iVertex << ", "
-                 << iNode << ", " << geometry_container[ZONE_0][MESH_0]->node[iNode]->GetColor()
+                 << iNode << ", " << geometry_container[ZONE_0][INST_0][MESH_0]->node[iNode]->GetColor()
                  << "): " << coupleNodeCoord[iVertex][iDim] << endl; /*--- for debugging purposes ---*/
           }
         }
@@ -389,13 +389,13 @@ double Precice::advance(double computedTimestepLength) {
       /*--- Loop over vertices of coupled boundary ---*/
       for (int iVertex = 0; iVertex < vertexSize[i]; iVertex++) {
         // Get node number (= index) to vertex (= node)
-        nodeVertex[iVertex] = geometry_container[ZONE_0][MESH_0]
+        nodeVertex[iVertex] = geometry_container[ZONE_0][INST_0][MESH_0]
                                   ->vertex[valueMarkerWet[i]][iVertex]
                                   ->GetNode(); /*--- Store all nodes (indices) in a vector ---*/
         // Get normal vector
         for (int iDim = 0; iDim < nDim; iDim++) {
           normalsVertex[iVertex][iDim] =
-              (geometry_container[ZONE_0][MESH_0]->vertex[valueMarkerWet[i]][iVertex]->GetNormal())[iDim];
+              (geometry_container[ZONE_0][INST_0][MESH_0]->vertex[valueMarkerWet[i]][iVertex]->GetNormal())[iDim];
         }
         // Unit normals
         Area = 0.0;
@@ -407,11 +407,11 @@ double Precice::advance(double computedTimestepLength) {
           normalsVertex_Unit[iVertex][iDim] = normalsVertex[iVertex][iDim] / Area;
         }
         // Get the values of pressure and viscosity
-        Pn = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetPressure();
-        Pinf = solver_container[ZONE_0][MESH_0][FLOW_SOL]->GetPressure_Inf();
+        Pn = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetPressure();
+        Pinf = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetPressure_Inf();
         if (viscous_flow) {
-          Grad_PrimVar = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetGradient_Primitive();
-          Viscosity = solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetLaminarViscosity();
+          Grad_PrimVar = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetGradient_Primitive();
+          Viscosity = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetLaminarViscosity();
         }
 
         // Calculate the forces_su2 in the nodes for the inviscid term --> Units of force (non-dimensional).
@@ -454,7 +454,7 @@ double Precice::advance(double computedTimestepLength) {
         for (int iDim = 0; iDim < nDim; iDim++) {
           // Do not write forces for duplicate nodes! -> Check wether the color of the node matches the MPI-rank of this
           // process. Only write forces, if node originally belongs to this process.
-          if (geometry_container[ZONE_0][MESH_0]->node[nodeVertex[iVertex]]->GetColor() == solverProcessIndex) {
+          if (geometry_container[ZONE_0][INST_0][MESH_0]->node[nodeVertex[iVertex]]->GetColor() == solverProcessIndex) {
             forces[iVertex * nDim + iDim] = forces_su2[iVertex][iDim];
           } else {
             forces[iVertex * nDim + iDim] = 0;
@@ -596,7 +596,7 @@ double Precice::advance(double computedTimestepLength) {
 
       // Set change of coordinates (i.e. displacementDeltas)
       for (int iVertex = 0; iVertex < vertexSize[i]; iVertex++) {
-        geometry_container[ZONE_0][MESH_0]->vertex[valueMarkerWet[i]][iVertex]->SetVarCoord(
+        geometry_container[ZONE_0][INST_0][MESH_0]->vertex[valueMarkerWet[i]][iVertex]->SetVarCoord(
             displacementDeltas_su2[iVertex]);
       }
       if (verbosityLevel_high) {
@@ -645,24 +645,24 @@ void Precice::saveOldState(bool* StopCalc, double* dt) {
   for (int iPoint = 0; iPoint < nPoint; iPoint++) {
     for (int iVar = 0; iVar < nVar; iVar++) {
       // Save solutions at last and current time step
-      solution_Saved[iPoint][iVar] = (solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[iPoint]->GetSolution())[iVar];
+      solution_Saved[iPoint][iVar] = (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->GetSolution())[iVar];
       solution_time_n_Saved[iPoint][iVar] =
-          (solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[iPoint]->GetSolution_time_n())[iVar];
+          (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->GetSolution_time_n())[iVar];
       solution_time_n1_Saved[iPoint][iVar] =
-          (solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[iPoint]->GetSolution_time_n1())[iVar];
+          (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->GetSolution_time_n1())[iVar];
     }
     for (int iDim = 0; iDim < nDim; iDim++) {
       // Save coordinates at last, current and next time step
-      Coord_Saved[iPoint][iDim] = (geometry_container[ZONE_0][MESH_0]->node[iPoint]->GetCoord())[iDim];
-      Coord_n_Saved[iPoint][iDim] = (geometry_container[ZONE_0][MESH_0]->node[iPoint]->GetCoord_n())[iDim];
-      Coord_n1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][MESH_0]->node[iPoint]->GetCoord_n1())[iDim];
-      Coord_p1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][MESH_0]->node[iPoint]->GetCoord_p1())[iDim];
+      Coord_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetCoord())[iDim];
+      Coord_n_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetCoord_n())[iDim];
+      Coord_n1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetCoord_n1())[iDim];
+      Coord_p1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetCoord_p1())[iDim];
       // Save grid velocity
-      GridVel_Saved[iPoint][iDim] = (geometry_container[ZONE_0][MESH_0]->node[iPoint]->GetGridVel())[iDim];
+      GridVel_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetGridVel())[iDim];
       for (int jDim = 0; jDim < nDim; jDim++) {
         // Save grid velocity gradient
         GridVel_Grad_Saved[iPoint][iDim][jDim] =
-            (geometry_container[ZONE_0][MESH_0]->node[iPoint]->GetGridVel_Grad())[iDim][jDim];
+            (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetGridVel_Grad())[iDim][jDim];
       }
     }
   }
@@ -678,26 +678,26 @@ void Precice::saveOldState(bool* StopCalc, double* dt) {
 void Precice::reloadOldState(bool* StopCalc, double* dt) {
   for (int iPoint = 0; iPoint < nPoint; iPoint++) {
     // Reload solutions at last and current time step
-    solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[iPoint]->SetSolution(solution_Saved[iPoint]);
-    solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[iPoint]->Set_Solution_time_n(solution_time_n_Saved[iPoint]);
-    solver_container[ZONE_0][MESH_0][FLOW_SOL]->node[iPoint]->Set_Solution_time_n1(solution_time_n1_Saved[iPoint]);
+    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->SetSolution(solution_Saved[iPoint]);
+    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->Set_Solution_time_n(solution_time_n_Saved[iPoint]);
+    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->Set_Solution_time_n1(solution_time_n1_Saved[iPoint]);
 
     // Reload coordinates at last, current and next time step
-    geometry_container[ZONE_0][MESH_0]->node[iPoint]->SetCoord(Coord_n1_Saved[iPoint]);
-    geometry_container[ZONE_0][MESH_0]->node[iPoint]->SetCoord_n();
-    geometry_container[ZONE_0][MESH_0]->node[iPoint]->SetCoord_n1();
-    geometry_container[ZONE_0][MESH_0]->node[iPoint]->SetCoord(Coord_n_Saved[iPoint]);
-    geometry_container[ZONE_0][MESH_0]->node[iPoint]->SetCoord_n();
-    geometry_container[ZONE_0][MESH_0]->node[iPoint]->SetCoord_p1(Coord_p1_Saved[iPoint]);
-    geometry_container[ZONE_0][MESH_0]->node[iPoint]->SetCoord(Coord_Saved[iPoint]);
+    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord(Coord_n1_Saved[iPoint]);
+    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord_n();
+    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord_n1();
+    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord(Coord_n_Saved[iPoint]);
+    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord_n();
+    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord_p1(Coord_p1_Saved[iPoint]);
+    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord(Coord_Saved[iPoint]);
 
     // Reload grid velocity
-    geometry_container[ZONE_0][MESH_0]->node[iPoint]->SetGridVel(GridVel_Saved[iPoint]);
+    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetGridVel(GridVel_Saved[iPoint]);
 
     // Reload grid velocity gradient
     for (int iDim = 0; iDim < nDim; iDim++) {
       for (int jDim = 0; jDim < nDim; jDim++) {
-        geometry_container[ZONE_0][MESH_0]->node[iPoint]->SetGridVel_Grad(iDim, jDim,
+        geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetGridVel_Grad(iDim, jDim,
                                                                           GridVel_Grad_Saved[iPoint][iDim][jDim]);
       }
     }
