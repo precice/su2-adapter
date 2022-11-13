@@ -31,8 +31,8 @@ cp ./replacement_files/CConfig.cpp $SU2_HOME/Common/src || { printf >&2 "\nCanno
 cp ./replacement_files/CConfig.hpp $SU2_HOME/Common/include || { printf >&2 "\nCannot copy replacement_files/CConfig.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 cp ./replacement_files/option_structure.hpp $SU2_HOME/Common/include || { printf >&2 "Cannot copy replacement_files/option_structure.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 cp ./replacement_files/CIteration.cpp $SU2_HOME/SU2_CFD/src/iteration || { printf >&2 "Cannot copy replacement_files/CIteration.cpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./replacement_files/CSinglezoneDriver.hpp $SU2_HOME/SU2_CFD/include/drivers || { printf >&2 "Cannot copy replacement_files/CDriver.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./replacement_files/CSinglezoneDriver.cpp $SU2_HOME/SU2_CFD/src/drivers || { printf >&2 "Cannot copy replacement_files/CDriver.cpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+cp ./replacement_files/CSinglezoneDriver.hpp $SU2_HOME/SU2_CFD/include/drivers || { printf >&2 "Cannot copy replacement_files/CSinglezoneDriver.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+cp ./replacement_files/CSinglezoneDriver.cpp $SU2_HOME/SU2_CFD/src/drivers || { printf >&2 "Cannot copy replacement_files/CSinglezoneDriver.cpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 printf " done.\n\n"
 
 # Add adapter files
@@ -41,11 +41,11 @@ cp ./adapter_files/precice.cpp $SU2_HOME/SU2_CFD/src || { printf >&2 "Cannot cop
 cp ./adapter_files/precice.hpp $SU2_HOME/SU2_CFD/include || { printf >&2 "Cannot copy adapter_files/precice.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 printf " done.\n\n"
 
-# Replace configure and build related files
+# Replace SU2_CFD/src/meson.build
 printf "Replacing original configure and build related files..."
 #cp ./replacement_files/aclocal.m4 $SU2_HOME || { printf >&2 "Cannot copy replacement_files/aclocal.m4. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 #cp ./replacement_files/configure.ac $SU2_HOME || { printf >&2 "Cannot copy replacement_files/configure.ac. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./replacement_files/Makefile.am $SU2_HOME/SU2_CFD/obj || { printf >&2 "Cannot copy replacement_files/Makefile.am. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+cp ./replacement_files/meson.build $SU2_HOME/SU2_CFD/src || { printf >&2 "Cannot copy replacement_files/meson.build. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 printf " done.\n\n"
 
 # Output to guide the user
