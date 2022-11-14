@@ -251,11 +251,11 @@ double Precice::initialize() {
 
         // Get coordinates for nodes
         for (int iDim = 0; iDim < nDim; iDim++) {
-          coupleNodeCoord[iVertex][iDim] = geometry_container[ZONE_0][INST_0][MESH_0]->node[iNode]->GetCoord(iDim);
+          coupleNodeCoord[iVertex][iDim] = geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord(iNode, iDim);
           if (verbosityLevel_high) {
             cout << "Process #" << solverProcessIndex << "/" << solverProcessSize - 1
                  << ": Initial coordinates of node (local index, global index, node color): (" << iVertex << ", "
-                 << iNode << ", " << geometry_container[ZONE_0][INST_0][MESH_0]->node[iNode]->GetColor()
+                 << iNode << ", " << geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetColor(iNode)
                  << "): " << coupleNodeCoord[iVertex][iDim] << endl; /*--- for debugging purposes ---*/
           }
         }
@@ -317,7 +317,7 @@ double Precice::initialize() {
          << ": There is grid movement (expected: 1): " << config_container[ZONE_0]->GetGrid_Movement()
          << endl; /*--- for debugging purposes ---*/
     cout << "Process #" << solverProcessIndex << "/" << solverProcessSize - 1
-         << ": Kind of grid movement (expected: 13): " << config_container[ZONE_0]->GetKind_GridMovement(ZONE_0)
+         << ": Kind of grid movement (expected: 13): " << config_container[ZONE_0]->GetKind_GridMovement()
          << endl; /*--- for debugging purposes ---*/
   }
 
@@ -340,9 +340,9 @@ double Precice::advance(double computedTimestepLength) {
     }
 
     // Get physical simulation information
-    bool incompressible = (config_container[ZONE_0]->GetKind_Regime() == INCOMPRESSIBLE);
-    bool viscous_flow = ((config_container[ZONE_0]->GetKind_Solver() == NAVIER_STOKES) ||
-                         (config_container[ZONE_0]->GetKind_Solver() == RANS));
+    bool incompressible = (config_container[ZONE_0]->GetKind_Regime() == ENUM_REGIME::INCOMPRESSIBLE);
+    bool viscous_flow = ((config_container[ZONE_0]->GetKind_Solver() == MAIN_SOLVER::NAVIER_STOKES) ||
+                         (config_container[ZONE_0]->GetKind_Solver() == MAIN_SOLVER::RANS));
 
     // Compute factorForces for redimensionalizing forces ("ND" = Non-Dimensional)
     double* Velocity_Real = config_container[ZONE_0]->GetVelocity_FreeStream();
@@ -407,11 +407,11 @@ double Precice::advance(double computedTimestepLength) {
           normalsVertex_Unit[iVertex][iDim] = normalsVertex[iVertex][iDim] / Area;
         }
         // Get the values of pressure and viscosity
-        Pn = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetPressure();
+        Pn = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetPressure(nodeVertex[iVertex]);
         Pinf = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetPressure_Inf();
         if (viscous_flow) {
-          Grad_PrimVar = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetGradient_Primitive();
-          Viscosity = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[nodeVertex[iVertex]]->GetLaminarViscosity();
+          Grad_PrimVar = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetGradient_Primitive(nodeVertex[iVertex]);
+          Viscosity = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetLaminarViscosity(nodeVertex[iVertex]);
         }
 
         // Calculate the forces_su2 in the nodes for the inviscid term --> Units of force (non-dimensional).
@@ -454,7 +454,7 @@ double Precice::advance(double computedTimestepLength) {
         for (int iDim = 0; iDim < nDim; iDim++) {
           // Do not write forces for duplicate nodes! -> Check wether the color of the node matches the MPI-rank of this
           // process. Only write forces, if node originally belongs to this process.
-          if (geometry_container[ZONE_0][INST_0][MESH_0]->node[nodeVertex[iVertex]]->GetColor() == solverProcessIndex) {
+          if (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetColor(nodeVertex[iVertex]) == solverProcessIndex) {
             forces[iVertex * nDim + iDim] = forces_su2[iVertex][iDim];
           } else {
             forces[iVertex * nDim + iDim] = 0;
@@ -653,16 +653,16 @@ void Precice::saveOldState(bool* StopCalc, double* dt) {
     }
     for (int iDim = 0; iDim < nDim; iDim++) {
       // Save coordinates at last, current and next time step
-      Coord_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetCoord())[iDim];
-      Coord_n_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetCoord_n())[iDim];
-      Coord_n1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetCoord_n1())[iDim];
-      Coord_p1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetCoord_p1())[iDim];
+      Coord_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord(iPoint))[iDim];
+      Coord_n_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord_n(iPoint))[iDim];
+      Coord_n1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord_n1(iPoint))[iDim];
+      Coord_p1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord_p1(iPoint))[iDim];
       // Save grid velocity
-      GridVel_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetGridVel())[iDim];
+      GridVel_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel(iPoint))[iDim];
       for (int jDim = 0; jDim < nDim; jDim++) {
         // Save grid velocity gradient
         GridVel_Grad_Saved[iPoint][iDim][jDim] =
-            (geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->GetGridVel_Grad())[iDim][jDim];
+            (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad(iPoint))[iDim][jDim];
       }
     }
   }
