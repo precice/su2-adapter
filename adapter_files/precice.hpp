@@ -29,13 +29,13 @@ class Precice {
   // Coupling interface object
   SolverInterface solverInterface;
   // Mesh and boundary information
-  CGeometry*** geometry_container;
+  CGeometry**** geometry_container;
   // Solution information
-  CSolver**** solver_container;
+  CSolver***** solver_container;
   // Configuration information
   CConfig** config_container;
   // Grid movement information
-  CVolumetricMovement** grid_movement;
+  CVolumetricMovement*** grid_movement;
 
   // General preCICE-related Variables
   int nDim;
