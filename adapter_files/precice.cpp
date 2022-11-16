@@ -478,6 +478,8 @@ double Precice::advance(double computedTimestepLength) {
       // Load Ramping functionality: Reduce force vector before transferring by a ramping factor, which increases with
       // the number of elapsed time steps; Achtung: ExtIter beginnt bei 0 (ohne Restart) und bei einem Restart
       // (Startlösung) nicht bei 0, sondern bei der Startiterationsnummer
+	  
+	  /* Temporarily commenting out - TODO
       if (config_container[ZONE_0]->GetpreCICE_LoadRamping() &&
           ((config_container[ZONE_0]->GetExtIter() - config_container[ZONE_0]->GetUnst_RestartIter()) <
            config_container[ZONE_0]->GetpreCICE_LoadRampingDuration())) {
@@ -491,6 +493,12 @@ double Precice::advance(double computedTimestepLength) {
                   ((config_container[ZONE_0]->GetExtIter() - config_container[ZONE_0]->GetUnst_RestartIter()) + 1) /
                   config_container[ZONE_0]->GetpreCICE_LoadRampingDuration();
       }
+	  */
+	  if (config_container[ZONE_0]->GetpreCICE_LoadRamping())
+		  cout << "Load ramping has not yet been implemented for this version of SU2" << endl;
+	  
+	  
+	  
       solverInterface.writeBlockVectorData(forceID[indexMarkerWetMappingLocalToGlobal[i]], vertexSize[i], vertexIDs[i],
                                            forces);
       if (verbosityLevel_high) {
@@ -645,11 +653,11 @@ void Precice::saveOldState(bool* StopCalc, double* dt) {
   for (int iPoint = 0; iPoint < nPoint; iPoint++) {
     for (int iVar = 0; iVar < nVar; iVar++) {
       // Save solutions at last and current time step
-      solution_Saved[iPoint][iVar] = (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->GetSolution())[iVar];
+      solution_Saved[iPoint][iVar] = (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution(iPoint, iVar);
       solution_time_n_Saved[iPoint][iVar] =
-          (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->GetSolution_time_n())[iVar];
+          (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution_time_n(iPoint, iVar);
       solution_time_n1_Saved[iPoint][iVar] =
-          (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->GetSolution_time_n1())[iVar];
+          (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution_time_n1(iPoint, iVar);
     }
     for (int iDim = 0; iDim < nDim; iDim++) {
       // Save coordinates at last, current and next time step
@@ -678,9 +686,9 @@ void Precice::saveOldState(bool* StopCalc, double* dt) {
 void Precice::reloadOldState(bool* StopCalc, double* dt) {
   for (int iPoint = 0; iPoint < nPoint; iPoint++) {
     // Reload solutions at last and current time step
-    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->SetSolution(solution_Saved[iPoint]);
-    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->Set_Solution_time_n(solution_time_n_Saved[iPoint]);
-    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->node[iPoint]->Set_Solution_time_n1(solution_time_n1_Saved[iPoint]);
+    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->SetSolution(iPoint,solution_Saved[iPoint]);
+    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->Set_Solution_time_n(iPoint, solution_time_n_Saved[iPoint]);
+    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->Set_Solution_time_n1(iPoint, solution_time_n1_Saved[iPoint]);
 
     // Reload coordinates at last, current and next time step
     geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord(Coord_n1_Saved[iPoint]);
