@@ -410,7 +410,7 @@ double Precice::advance(double computedTimestepLength) {
         Pn = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetPressure(nodeVertex[iVertex]);
         Pinf = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetPressure_Inf();
         if (viscous_flow) {
-          Grad_PrimVar = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetGradient_Primitive(nodeVertex[iVertex]);
+          Grad_PrimVar = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetGradient_Primitive()[nodeVertex[iVertex]]);
           Viscosity = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetLaminarViscosity(nodeVertex[iVertex]);
         }
 
@@ -653,11 +653,11 @@ void Precice::saveOldState(bool* StopCalc, double* dt) {
   for (int iPoint = 0; iPoint < nPoint; iPoint++) {
     for (int iVar = 0; iVar < nVar; iVar++) {
       // Save solutions at last and current time step
-      solution_Saved[iPoint][iVar] = (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution(iPoint, iVar);
+      solution_Saved[iPoint][iVar] = (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution(iPoint, iVar));
       solution_time_n_Saved[iPoint][iVar] =
-          (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution_time_n(iPoint, iVar);
+          (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution_time_n(iPoint, iVar));
       solution_time_n1_Saved[iPoint][iVar] =
-          (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution_time_n1(iPoint, iVar);
+          (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution_time_n1(iPoint, iVar));
     }
     for (int iDim = 0; iDim < nDim; iDim++) {
       // Save coordinates at last, current and next time step
