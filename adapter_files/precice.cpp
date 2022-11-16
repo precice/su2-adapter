@@ -5,6 +5,7 @@
  */
 
 #include "../include/precice.hpp"
+#include "../../Common/include/containers/container_decorators.hpp"
 
 Precice::Precice(const string& preciceConfigurationFileName, const std::string& preciceParticipantName,
                  const std::string& preciceReadDataName_, const std::string& preciceWriteDataName_,
@@ -379,7 +380,7 @@ double Precice::advance(double computedTimestepLength) {
       double Area;
       double Pn = 0.0;   /*--- denotes pressure at a node ---*/
       double Pinf = 0.0; /*--- denotes environmental (farfield) pressure ---*/
-      double** Grad_PrimVar =
+      CMatrixView<double> Grad_PrimVar =
           NULL; /*--- denotes (u.A. velocity) gradients needed for computation of viscous forces ---*/
       double Viscosity = 0.0;
       double Tau[3][3];
@@ -691,24 +692,22 @@ void Precice::reloadOldState(bool* StopCalc, double* dt) {
     solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->Set_Solution_time_n1(iPoint, solution_time_n1_Saved[iPoint]);
 
     // Reload coordinates at last, current and next time step
-    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord(Coord_n1_Saved[iPoint]);
-    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord_n();
-    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord_n1();
-    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord(Coord_n_Saved[iPoint]);
-    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord_n();
-    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord_p1(Coord_p1_Saved[iPoint]);
-    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetCoord(Coord_Saved[iPoint]);
-
+	geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetCoord_n1(iPoint, Coord_n1_Saved[iPoint]);
+    geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetCoord_n(iPoint, Coord_n_Saved[iPoint]);
+    geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetCoord_p1(iPoint, Coord_p1_Saved[iPoint]);
+	geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetCoord(iPoint, Coord_Saved[iPoint])
+	
     // Reload grid velocity
-    geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetGridVel(GridVel_Saved[iPoint]);
+    geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetGridVel(iPoint, GridVel_Saved[iPoint]);
 
+	
     // Reload grid velocity gradient
     for (int iDim = 0; iDim < nDim; iDim++) {
       for (int jDim = 0; jDim < nDim; jDim++) {
-        geometry_container[ZONE_0][INST_0][MESH_0]->node[iPoint]->SetGridVel_Grad(iDim, jDim,
-                                                                          GridVel_Grad_Saved[iPoint][iDim][jDim]);
+        geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad()[iPoint][iDim][jDim] = GridVel_Grad_Saved[iPoint][iDim][jDim];
       }
     }
+	
   }
 
   // Reload wether simulation should be stopped after current iteration
