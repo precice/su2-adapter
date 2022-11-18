@@ -189,8 +189,9 @@ su2_cfd_src += files(['iteration/CIteration.cpp',
 
 su2_cfd_src += files(['limiters/CLimiterDetails.cpp'])
 
-# preCICE: include precice.cpp file to be part of build.ninja
+# preCICE: include precice.cpp file to be part of build.ninja, and add precice cflags and lib
 su2_cfd_src += files(['precice.cpp'])
+su2_cpp_args += '$(pkg-config --cflags libprecice)'
 
 if get_option('enable-normal')
   su2_cfd_lib = static_library('SU2core',
