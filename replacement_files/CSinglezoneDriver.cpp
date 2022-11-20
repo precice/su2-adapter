@@ -67,11 +67,11 @@ void CSinglezoneDriver::StartSolver() {
 	// Saving GridVel_Grad is only important when using Continuous Adjoint
 	// SU2 no longer even instantiates GridVel_Grad when not using it
 	// This would break the adapter -- so instantiate it if it hasn't been already
-	if (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad() == NULL)
+	if (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad().size() < 1)
 	{
 		int nDim = geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim();
 		unsigned long nPoint = geometry_container[ZONE_0][INST_0][MESH_0]->GetnPoint();
-		(geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad()).resize(nPoint, nDim, nDim, 0.0)
+		(geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad()).resize(nPoint, nDim, nDim, 0.0);
 		// Create GridVel_Grad w/ just a bunch of zeros
 	}
 	
