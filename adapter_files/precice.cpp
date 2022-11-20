@@ -5,7 +5,7 @@
  */
 
 #include "../include/precice.hpp"
-#include "../../Common/include/containers/container_decorators.hpp"
+//#include "../../Common/include/containers/container_decorators.hpp"
 
 Precice::Precice(const string& preciceConfigurationFileName, const std::string& preciceParticipantName,
                  const std::string& preciceReadDataName_, const std::string& preciceWriteDataName_,
@@ -380,7 +380,8 @@ double Precice::advance(double computedTimestepLength) {
       double Area;
       double Pn = 0.0;   /*--- denotes pressure at a node ---*/
       double Pinf = 0.0; /*--- denotes environmental (farfield) pressure ---*/
-      CMatrixView<double> Grad_PrimVar =
+	  //double** Grad_PrimVar =
+	  CMatrixView<double> Grad_PrimVar =
           NULL; /*--- denotes (u.A. velocity) gradients needed for computation of viscous forces ---*/
       double Viscosity = 0.0;
       double Tau[3][3];
@@ -651,7 +652,10 @@ const string& Precice::getCowic() { return cowic; }
 const string& Precice::getCoric() { return coric; }
 
 void Precice::saveOldState(bool* StopCalc, double* dt) {
+	cout << "Entering point for loop" << endl;
   for (int iPoint = 0; iPoint < nPoint; iPoint++) {
+	  
+	  cout << "Entering var for loop" << endl;
     for (int iVar = 0; iVar < nVar; iVar++) {
       // Save solutions at last and current time step
       solution_Saved[iPoint][iVar] = (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution(iPoint, iVar));
@@ -660,18 +664,22 @@ void Precice::saveOldState(bool* StopCalc, double* dt) {
       solution_time_n1_Saved[iPoint][iVar] =
           (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution_time_n1(iPoint, iVar));
     }
+	cout << "Entering dim for loop" << endl;
     for (int iDim = 0; iDim < nDim; iDim++) {
       // Save coordinates at last, current and next time step
       Coord_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord(iPoint))[iDim];
       Coord_n_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord_n(iPoint))[iDim];
       Coord_n1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord_n1(iPoint))[iDim];
       Coord_p1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord_p1(iPoint))[iDim];
+	  
+	  cout << "Saving grid velocity" << endl;
       // Save grid velocity
       GridVel_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel(iPoint))[iDim];
       for (int jDim = 0; jDim < nDim; jDim++) {
+		  cout << "In grid velocity ndim for loop" << endl;
         // Save grid velocity gradient
         GridVel_Grad_Saved[iPoint][iDim][jDim] =
-            (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad(iPoint))[iDim][jDim];
+            geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad(iPoint)[iDim][jDim];
       }
     }
   }

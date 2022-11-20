@@ -62,6 +62,19 @@ void CSinglezoneDriver::StartSolver() {
 		config_container, grid_movement);
 	dt = new double(config_container[ZONE_0]->GetDelta_UnstTimeND());
 	max_precice_dt = new double(precice->initialize());
+	
+	
+	// Saving GridVel_Grad is only important when using Continuous Adjoint
+	// SU2 no longer even instantiates GridVel_Grad when not using it
+	// This would break the adapter -- so instantiate it if it hasn't been already
+	if (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad() == NULL)
+	{
+		int nDim = geometry_container[ZONE_0][INST_0][MESH_0]->GetnDim();
+		unsigned long nPoint = geometry_container[ZONE_0][INST_0][MESH_0]->GetnPoint();
+		(geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad()).resize(nPoint, nDim, nDim, 0.0)
+		// Create GridVel_Grad w/ just a bunch of zeros
+	}
+	
   }
   /*--- Main external loop of the solver. Runs for the number of time steps required. ---*/
 
@@ -78,23 +91,28 @@ void CSinglezoneDriver::StartSolver() {
   /*--- Set the initial time iteration to the restart iteration. ---*/
   if (config_container[ZONE_0]->GetRestart() && driver_config->GetTime_Domain())
     TimeIter = config_container[ZONE_0]->GetRestart_Iter();
-
+	cout << "Entering while loop" << endl;
   /*--- Run the problem until the number of time iterations required is reached. ---*/
   //preCICE
   while ( (precice_usage && precice->isCouplingOngoing()) || (TimeIter < config_container[ZONE_0]->GetnTime_Iter() && !precice_usage) ) {
 
-
+	cout << "Checking precice implicit coupling" << endl;
 	// preCICE implicit coupling: saveOldState()
 	if (precice_usage && precice->isActionRequired(precice->getCowic())) {
+		
+		cout << "Inside precice implicit coupling conditional" << endl;
 	  precice->saveOldState(&StopCalc, dt);
 	}
-
+	
+	cout << "Setting minimal timestep size as new time step size in SU2" << endl;
 	// preCICE - set minimal time step size as new time step size in SU2
 	if (precice_usage) {
+		cout << "Getting minimum timestep between precice and SU2" << endl;
 	  dt = min(max_precice_dt, dt);
+	  cout << "Setting timestep to CConfig object" << endl;
 	  config_container[ZONE_0]->SetDelta_UnstTimeND(*dt);
 	}
-	
+	cout << "Running preprocess(TimeIter)" << endl;
     /*--- Perform some preprocessing before starting the time-step simulation. ---*/
 
     Preprocess(TimeIter);

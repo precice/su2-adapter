@@ -1,0 +1,5 @@
+ccx_preCICE -i flap -precice-participant Solid <-- NOT Calculix, must match yaml.cpp file format
+
+and
+
+SU2_CFD euler...

@@ -61,7 +61,7 @@ class Precice {
   ReadDataType readDataType;
 
   // Variables for storing the old state to reset to in case of an implicit simulation
-  int nPoint;  // Overall number of nodes of the problem
+  unsigned long nPoint;  // Overall number of nodes of the problem
   int nVar;    // Number of variables of the problem
   double **Coord_Saved, **Coord_n_Saved, **Coord_n1_Saved, **Coord_p1_Saved, **GridVel_Saved, ***GridVel_Grad_Saved;
   double dt_savedState;
