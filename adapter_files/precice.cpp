@@ -668,13 +668,17 @@ void Precice::saveOldState(bool* StopCalc, double* dt) {
       Coord_n1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord_n1(iPoint))[iDim];
       Coord_p1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord_p1(iPoint))[iDim];
 	  
-      // Save grid velocity
-      GridVel_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel(iPoint))[iDim];
-      for (int jDim = 0; jDim < nDim; jDim++) {
-        // Save grid velocity gradient
-        GridVel_Grad_Saved[iPoint][iDim][jDim] =
-            geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad(iPoint)[iDim][jDim];
-      }
+      // Save grid velocity - only important when using continunous adjoint
+	  // Also: SU2 does not instantiate GridVel_Grad in CPoint when not, so this check is critical
+	  if (config_container[ZONE_0]->GetContinuous_Adjoint())
+	  {
+		  GridVel_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel(iPoint))[iDim];
+		  for (int jDim = 0; jDim < nDim; jDim++) {
+			// Save grid velocity gradient
+			GridVel_Grad_Saved[iPoint][iDim][jDim] =
+				geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad(iPoint)[iDim][jDim];
+		  }
+	  }
     }
   }
 
@@ -703,12 +707,15 @@ void Precice::reloadOldState(bool* StopCalc, double* dt) {
     geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetGridVel(iPoint, GridVel_Saved[iPoint]);
 
 	
-    // Reload grid velocity gradient
-    for (int iDim = 0; iDim < nDim; iDim++) {
-      for (int jDim = 0; jDim < nDim; jDim++) {
-        geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad()[iPoint][iDim][jDim] = GridVel_Grad_Saved[iPoint][iDim][jDim];
-      }
-    }
+    // Reload grid velocity gradient if using CA
+	if (config_container[ZONE_0]->GetContinuous_Adjoint())
+	{
+		for (int iDim = 0; iDim < nDim; iDim++) {
+		  for (int jDim = 0; jDim < nDim; jDim++) {
+			geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad()[iPoint][iDim][jDim] = GridVel_Grad_Saved[iPoint][iDim][jDim];
+		  }
+		}
+	}
 	
   }
 

@@ -64,6 +64,7 @@ void CSinglezoneDriver::StartSolver() {
 	max_precice_dt = new double(precice->initialize());
 	
 	
+	/* Implemented continuous adjoint check in precice class instead
 	// Saving GridVel_Grad is only important when using Continuous Adjoint
 	// SU2 no longer even instantiates GridVel_Grad when not using it
 	// This would break the adapter -- so instantiate it if it hasn't been already
@@ -74,6 +75,7 @@ void CSinglezoneDriver::StartSolver() {
 		(geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad()).resize(nPoint, nDim, nDim, 0.0);
 		// Create GridVel_Grad w/ just a bunch of zeros
 	}
+	*/
 	
   }
   /*--- Main external loop of the solver. Runs for the number of time steps required. ---*/
@@ -118,22 +120,24 @@ void CSinglezoneDriver::StartSolver() {
     Preprocess(TimeIter);
 
     /*--- Run a time-step iteration of the single-zone problem. ---*/
-
+	cout << "Completed Preprocess. Running Run()" << endl;
+	
     Run();
 
     /*--- Perform some postprocessing on the solution before the update ---*/
-
+	cout << "Completed Run. Running Postprocess()" << endl;
     Postprocess();
 
     /*--- Update the solution for dual time stepping strategy ---*/
-
+	cout << "Completed Postprocess. Running Update()" << endl;
     Update();
 
     /*--- Monitor the computations after each iteration. ---*/
-
+	cout << "Completed Update. Running Monitor(TimeIter)" << endl;
     Monitor(TimeIter);
 
 
+	cout << "Advancing precice!" << endl;
 	// preCICE - Advancing
 	if (precice_usage) {
 	  *max_precice_dt = precice->advance(*dt);
@@ -141,7 +145,7 @@ void CSinglezoneDriver::StartSolver() {
 	
     /*--- Output the solution in files. ---*/
 
-
+	cout << "Implicit coupling -- reloadOldState() being run..." << endl;
 	// preCICE implicit coupling: reloadOldState()
 	bool suppress_output_by_preCICE = false;
 	if (precice_usage && precice->isActionRequired(precice->getCoric())) {
@@ -151,9 +155,12 @@ void CSinglezoneDriver::StartSolver() {
 	  precice->reloadOldState(&StopCalc, dt);
 	  suppress_output_by_preCICE = true;
 	}
+	
+	cout << "Running Output()" << endl;
 	// preCICE
     Output(TimeIter, suppress_output_by_preCICE);
 
+	cout<< "Saving iteration" << endl;
     /*--- Save iteration solution for libROM ---*/
     if (config_container[MESH_0]->GetSave_libROM()) {
       solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->SavelibROM(geometry_container[ZONE_0][INST_0][MESH_0],
