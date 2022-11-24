@@ -317,9 +317,12 @@ double Precice::initialize() {
     cout << "Process #" << solverProcessIndex << "/" << solverProcessSize - 1
          << ": There is grid movement (expected: 1): " << config_container[ZONE_0]->GetGrid_Movement()
          << endl; /*--- for debugging purposes ---*/
+	/* No longer relevant: SU2 differentiates between a surface movement and grid movement now - no kind of grid movement occurring
     cout << "Process #" << solverProcessIndex << "/" << solverProcessSize - 1
          << ": Kind of grid movement (expected: 13): " << config_container[ZONE_0]->GetKind_GridMovement()
-         << endl; /*--- for debugging purposes ---*/
+         << endl; 
+		 --- for debugging purposes ---*/
+	
   }
 
   double precice_dt; /*--- preCICE timestep size ---*/

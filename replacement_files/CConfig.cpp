@@ -8545,7 +8545,9 @@ bool CConfig::GetVolumetric_Movement() const {
   if (GetSurface_Movement(AEROELASTIC) ||
       GetSurface_Movement(AEROELASTIC_RIGID_MOTION)||
       GetSurface_Movement(EXTERNAL) ||
-      GetSurface_Movement(EXTERNAL_ROTATION)){
+      GetSurface_Movement(EXTERNAL_ROTATION)||
+	  //preCICE: Ensure that volumetric_movement is activated so appropriate variables (CVolumetricMovement.StiffMatrix) are instantiated
+	  GetSurface_Movement(PRECICE_MOVEMENT)){
     volumetric_movement = true;
   }
 
