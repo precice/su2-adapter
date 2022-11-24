@@ -93,35 +93,27 @@ void CSinglezoneDriver::StartSolver() {
   /*--- Set the initial time iteration to the restart iteration. ---*/
   if (config_container[ZONE_0]->GetRestart() && driver_config->GetTime_Domain())
     TimeIter = config_container[ZONE_0]->GetRestart_Iter();
-	cout << "Entering while loop" << endl;
+	
   /*--- Run the problem until the number of time iterations required is reached. ---*/
   //preCICE
   while ( (precice_usage && precice->isCouplingOngoing()) || (TimeIter < config_container[ZONE_0]->GetnTime_Iter() && !precice_usage) ) {
 
-	cout << "Checking precice implicit coupling" << endl;
 	// preCICE implicit coupling: saveOldState()
 	if (precice_usage && precice->isActionRequired(precice->getCowic())) {
 		
-		cout << "Inside precice implicit coupling conditional" << endl;
 	  precice->saveOldState(&StopCalc, dt);
 	}
-	
-	cout << "Setting minimal timestep size as new time step size in SU2" << endl;
+
 	// preCICE - set minimal time step size as new time step size in SU2
 	if (precice_usage) {
-		cout << "Getting minimum timestep between precice and SU2" << endl;
 	  dt = min(max_precice_dt, dt);
-	  cout << "Setting timestep to CConfig object" << endl;
 	  config_container[ZONE_0]->SetDelta_UnstTimeND(*dt);
 	}
-	cout << "Running preprocess(TimeIter)" << endl;
+	
     /*--- Perform some preprocessing before starting the time-step simulation. ---*/
-
     Preprocess(TimeIter);
 
     /*--- Run a time-step iteration of the single-zone problem. ---*/
-	cout << "Completed Preprocess. Running Run()" << endl;
-	
     Run();
 
     /*--- Perform some postprocessing on the solution before the update ---*/
@@ -129,15 +121,11 @@ void CSinglezoneDriver::StartSolver() {
     Postprocess();
 
     /*--- Update the solution for dual time stepping strategy ---*/
-	cout << "Completed Postprocess. Running Update()" << endl;
     Update();
 
     /*--- Monitor the computations after each iteration. ---*/
-	cout << "Completed Update. Running Monitor(TimeIter)" << endl;
     Monitor(TimeIter);
 
-
-	cout << "Advancing precice!" << endl;
 	// preCICE - Advancing
 	if (precice_usage) {
 	  *max_precice_dt = precice->advance(*dt);
@@ -145,7 +133,6 @@ void CSinglezoneDriver::StartSolver() {
 	
     /*--- Output the solution in files. ---*/
 
-	cout << "Implicit coupling -- reloadOldState() being run..." << endl;
 	// preCICE implicit coupling: reloadOldState()
 	bool suppress_output_by_preCICE = false;
 	if (precice_usage && precice->isActionRequired(precice->getCoric())) {
@@ -156,11 +143,9 @@ void CSinglezoneDriver::StartSolver() {
 	  suppress_output_by_preCICE = true;
 	}
 	
-	cout << "Running Output()" << endl;
 	// preCICE
     Output(TimeIter, suppress_output_by_preCICE);
 
-	cout<< "Saving iteration" << endl;
     /*--- Save iteration solution for libROM ---*/
     if (config_container[MESH_0]->GetSave_libROM()) {
       solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->SavelibROM(geometry_container[ZONE_0][INST_0][MESH_0],

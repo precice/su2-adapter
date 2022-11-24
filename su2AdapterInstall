@@ -42,7 +42,7 @@ cp ./adapter_files/precice.hpp $SU2_HOME/SU2_CFD/include || { printf >&2 "Cannot
 printf " done.\n\n"
 
 # Replace SU2_CFD/src/meson.build
-printf "Replacing original configure and build related files..."
+printf "Replacing original build related file..."
 #cp ./replacement_files/aclocal.m4 $SU2_HOME || { printf >&2 "Cannot copy replacement_files/aclocal.m4. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 #cp ./replacement_files/configure.ac $SU2_HOME || { printf >&2 "Cannot copy replacement_files/configure.ac. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 cp ./replacement_files/meson.build $SU2_HOME/SU2_CFD/src || { printf >&2 "Cannot copy replacement_files/meson.build. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
