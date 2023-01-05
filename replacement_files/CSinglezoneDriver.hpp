@@ -3,7 +3,7 @@
  * \brief Headers of the main subroutines for driving single or multi-zone problems.
  *        The subroutines and functions are in the <i>driver_structure.cpp</i> file.
  * \author T. Economon, H. Kline, R. Sanchez
- * \version 7.4.0 "Blackbird"
+ * \version 7.5.0 "Blackbird"
  *
  * SU2 Project Website: https://su2code.github.io
  *
@@ -35,26 +35,31 @@ class Precice;
 
 /*!
  * \class CSinglezoneDriver
+ * \ingroup Drivers
  * \brief Class for driving single-zone solvers.
  * \author R. Sanchez
- * \version 7.4.0 "Blackbird"
+ * \version 7.5.0 "Blackbird"
  */
 class CSinglezoneDriver : public CDriver {
- protected:
+protected:
+
   unsigned long TimeIter;
   /// preCICE
   bool precice_usage;
   Precice* precice;
   double *max_precice_dt, *dt;
 
- public:
+public:
+
   /*!
    * \brief Constructor of the class.
    * \param[in] confFile - Configuration file name.
    * \param[in] val_nZone - Total number of zones.
    * \param[in] MPICommunicator - MPI communicator for SU2.
    */
-  CSinglezoneDriver(char* confFile, unsigned short val_nZone, SU2_Comm MPICommunicator);
+  CSinglezoneDriver(char* confFile,
+             unsigned short val_nZone,
+             SU2_Comm MPICommunicator);
 
   /*!
    * \brief Destructor of the class.
@@ -100,8 +105,7 @@ class CSinglezoneDriver : public CDriver {
   void Output(unsigned long TimeIter, bool suppress_output_by_preCICE);
 
   /*!
-   * \brief Perform a dynamic mesh deformation, included grid velocity computation and the update of the multigrid
-   * structure.
+   * \brief Perform a dynamic mesh deformation, included grid velocity computation and the update of the multigrid structure.
    */
   void DynamicMeshUpdate(unsigned long TimeIter) override;
 
@@ -117,9 +121,9 @@ class CSinglezoneDriver : public CDriver {
   bool Monitor(unsigned long TimeIter) override;
 
   /*!
-   * \brief  Returns whether all specified windowed-time-averaged ouputs have been converged
-   * \return Boolean indicating whether the problem is converged.
-   */
+     * \brief  Returns whether all specified windowed-time-averaged ouputs have been converged
+     * \return Boolean indicating whether the problem is converged.
+     */
   virtual bool GetTimeConvergence() const;
 
   /*!
