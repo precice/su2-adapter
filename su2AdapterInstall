@@ -2,10 +2,10 @@
 
 # This auxiliary script simplifies the installation of the preCICE-adapter for SU2. It copies the adapted SU2-files to the correct locations based on the environment variable SU2_HOME.
 # Author: Alexander Rusch
-# SU2 version: 7.4.0 "Blackbird"
+# SU2 version: 7.5.0 "Blackbird"
 
 # SU2 version for which this adapter was made
-VERSION="7.4.0 \"Blackbird\""
+VERSION="7.5.0 \"Blackbird\""
 
 # Always run this script from current directory
 cd "$(dirname "$0")"
