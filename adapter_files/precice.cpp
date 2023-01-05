@@ -5,7 +5,7 @@
  */
 
 #include "../include/precice.hpp"
-//#include "../../Common/include/containers/container_decorators.hpp"
+// #include "../../Common/include/containers/container_decorators.hpp"
 
 Precice::Precice(const string& preciceConfigurationFileName, const std::string& preciceParticipantName,
                  const std::string& preciceReadDataName_, const std::string& preciceWriteDataName_,
@@ -317,12 +317,11 @@ double Precice::initialize() {
     cout << "Process #" << solverProcessIndex << "/" << solverProcessSize - 1
          << ": There is grid movement (expected: 1): " << config_container[ZONE_0]->GetGrid_Movement()
          << endl; /*--- for debugging purposes ---*/
-	/* No longer relevant: SU2 differentiates between a surface movement and grid movement now - no kind of grid movement occurring
-    cout << "Process #" << solverProcessIndex << "/" << solverProcessSize - 1
-         << ": Kind of grid movement (expected: 13): " << config_container[ZONE_0]->GetKind_GridMovement()
-         << endl; 
-		 --- for debugging purposes ---*/
-	
+    /* No longer relevant: SU2 differentiates between a surface movement and grid movement now - no kind of grid
+movement occurring cout << "Process #" << solverProcessIndex << "/" << solverProcessSize - 1
+     << ": Kind of grid movement (expected: 13): " << config_container[ZONE_0]->GetKind_GridMovement()
+     << endl;
+             --- for debugging purposes ---*/
   }
 
   double precice_dt; /*--- preCICE timestep size ---*/
@@ -383,8 +382,8 @@ double Precice::advance(double computedTimestepLength) {
       double Area;
       double Pn = 0.0;   /*--- denotes pressure at a node ---*/
       double Pinf = 0.0; /*--- denotes environmental (farfield) pressure ---*/
-	  //double** Grad_PrimVar =
-	  CMatrixView<double> Grad_PrimVar =
+      // double** Grad_PrimVar =
+      CMatrixView<double> Grad_PrimVar =
           NULL; /*--- denotes (u.A. velocity) gradients needed for computation of viscous forces ---*/
       double Viscosity = 0.0;
       double Tau[3][3];
@@ -415,8 +414,11 @@ double Precice::advance(double computedTimestepLength) {
         Pn = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetPressure(nodeVertex[iVertex]);
         Pinf = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetPressure_Inf();
         if (viscous_flow) {
-          Grad_PrimVar = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetGradient_Primitive()[nodeVertex[iVertex]];
-          Viscosity = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetLaminarViscosity(nodeVertex[iVertex]);
+          Grad_PrimVar = solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]
+                             ->GetNodes()
+                             ->GetGradient_Primitive()[nodeVertex[iVertex]];
+          Viscosity =
+              solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetLaminarViscosity(nodeVertex[iVertex]);
         }
 
         // Calculate the forces_su2 in the nodes for the inviscid term --> Units of force (non-dimensional).
@@ -483,27 +485,25 @@ double Precice::advance(double computedTimestepLength) {
       // Load Ramping functionality: Reduce force vector before transferring by a ramping factor, which increases with
       // the number of elapsed time steps; Achtung: ExtIter beginnt bei 0 (ohne Restart) und bei einem Restart
       // (Startlösung) nicht bei 0, sondern bei der Startiterationsnummer
-	  
-	  /* Temporarily commenting out - TODO
-      if (config_container[ZONE_0]->GetpreCICE_LoadRamping() &&
-          ((config_container[ZONE_0]->GetExtIter() - config_container[ZONE_0]->GetUnst_RestartIter()) <
-           config_container[ZONE_0]->GetpreCICE_LoadRampingDuration())) {
-        if (verbosityLevel_high) {
-          cout << "Process #" << solverProcessIndex << "/" << solverProcessSize - 1
-               << ": Load ramping factor in preCICE: "
-               << config_container[ZONE_0]->GetExtIter() - config_container[ZONE_0]->GetUnst_RestartIter() + 1 << "/"
-               << config_container[ZONE_0]->GetpreCICE_LoadRampingDuration() << endl;
-        }
-        *forces = *forces *
-                  ((config_container[ZONE_0]->GetExtIter() - config_container[ZONE_0]->GetUnst_RestartIter()) + 1) /
-                  config_container[ZONE_0]->GetpreCICE_LoadRampingDuration();
-      }
-	  */
-	  if (config_container[ZONE_0]->GetpreCICE_LoadRamping())
-		  cout << "Load ramping has not yet been implemented for this version of SU2" << endl;
-	  
-	  
-	  
+
+      /* Temporarily commenting out - TODO
+  if (config_container[ZONE_0]->GetpreCICE_LoadRamping() &&
+      ((config_container[ZONE_0]->GetExtIter() - config_container[ZONE_0]->GetUnst_RestartIter()) <
+       config_container[ZONE_0]->GetpreCICE_LoadRampingDuration())) {
+    if (verbosityLevel_high) {
+      cout << "Process #" << solverProcessIndex << "/" << solverProcessSize - 1
+           << ": Load ramping factor in preCICE: "
+           << config_container[ZONE_0]->GetExtIter() - config_container[ZONE_0]->GetUnst_RestartIter() + 1 << "/"
+           << config_container[ZONE_0]->GetpreCICE_LoadRampingDuration() << endl;
+    }
+    *forces = *forces *
+              ((config_container[ZONE_0]->GetExtIter() - config_container[ZONE_0]->GetUnst_RestartIter()) + 1) /
+              config_container[ZONE_0]->GetpreCICE_LoadRampingDuration();
+  }
+      */
+      if (config_container[ZONE_0]->GetpreCICE_LoadRamping())
+        cout << "Load ramping has not yet been implemented for this version of SU2" << endl;
+
       solverInterface.writeBlockVectorData(forceID[indexMarkerWetMappingLocalToGlobal[i]], vertexSize[i], vertexIDs[i],
                                            forces);
       if (verbosityLevel_high) {
@@ -658,7 +658,8 @@ void Precice::saveOldState(bool* StopCalc, double* dt) {
   for (int iPoint = 0; iPoint < nPoint; iPoint++) {
     for (int iVar = 0; iVar < nVar; iVar++) {
       // Save solutions at last and current time step
-      solution_Saved[iPoint][iVar] = (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution(iPoint, iVar));
+      solution_Saved[iPoint][iVar] =
+          (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution(iPoint, iVar));
       solution_time_n_Saved[iPoint][iVar] =
           (solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->GetSolution_time_n(iPoint, iVar));
       solution_time_n1_Saved[iPoint][iVar] =
@@ -670,18 +671,17 @@ void Precice::saveOldState(bool* StopCalc, double* dt) {
       Coord_n_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord_n(iPoint))[iDim];
       Coord_n1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord_n1(iPoint))[iDim];
       Coord_p1_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetCoord_p1(iPoint))[iDim];
-	  
+
       // Save grid velocity - only important when using continunous adjoint
-	  // Also: SU2 does not instantiate GridVel_Grad in CPoint when not, so this check is critical
-	  if (config_container[ZONE_0]->GetContinuous_Adjoint())
-	  {
-		  GridVel_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel(iPoint))[iDim];
-		  for (int jDim = 0; jDim < nDim; jDim++) {
-			// Save grid velocity gradient
-			GridVel_Grad_Saved[iPoint][iDim][jDim] =
-				geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad(iPoint)[iDim][jDim];
-		  }
-	  }
+      // Also: SU2 does not instantiate GridVel_Grad in CPoint when not, so this check is critical
+      if (config_container[ZONE_0]->GetContinuous_Adjoint()) {
+        GridVel_Saved[iPoint][iDim] = (geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel(iPoint))[iDim];
+        for (int jDim = 0; jDim < nDim; jDim++) {
+          // Save grid velocity gradient
+          GridVel_Grad_Saved[iPoint][iDim][jDim] =
+              geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad(iPoint)[iDim][jDim];
+        }
+      }
     }
   }
 
@@ -696,30 +696,30 @@ void Precice::saveOldState(bool* StopCalc, double* dt) {
 void Precice::reloadOldState(bool* StopCalc, double* dt) {
   for (int iPoint = 0; iPoint < nPoint; iPoint++) {
     // Reload solutions at last and current time step
-    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->SetSolution(iPoint,solution_Saved[iPoint]);
-    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->Set_Solution_time_n(iPoint, solution_time_n_Saved[iPoint]);
-    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->Set_Solution_time_n1(iPoint, solution_time_n1_Saved[iPoint]);
+    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->SetSolution(iPoint, solution_Saved[iPoint]);
+    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->Set_Solution_time_n(iPoint,
+                                                                                        solution_time_n_Saved[iPoint]);
+    solver_container[ZONE_0][INST_0][MESH_0][FLOW_SOL]->GetNodes()->Set_Solution_time_n1(
+        iPoint, solution_time_n1_Saved[iPoint]);
 
     // Reload coordinates at last, current and next time step
-	geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetCoord_n1(iPoint, Coord_n1_Saved[iPoint]);
+    geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetCoord_n1(iPoint, Coord_n1_Saved[iPoint]);
     geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetCoord_n(iPoint, Coord_n_Saved[iPoint]);
     geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetCoord_p1(iPoint, Coord_p1_Saved[iPoint]);
-	geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetCoord(iPoint, Coord_Saved[iPoint]);
-	
+    geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetCoord(iPoint, Coord_Saved[iPoint]);
+
     // Reload grid velocity
     geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetGridVel(iPoint, GridVel_Saved[iPoint]);
 
-	
     // Reload grid velocity gradient if using CA
-	if (config_container[ZONE_0]->GetContinuous_Adjoint())
-	{
-		for (int iDim = 0; iDim < nDim; iDim++) {
-		  for (int jDim = 0; jDim < nDim; jDim++) {
-			geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad()[iPoint][iDim][jDim] = GridVel_Grad_Saved[iPoint][iDim][jDim];
-		  }
-		}
-	}
-	
+    if (config_container[ZONE_0]->GetContinuous_Adjoint()) {
+      for (int iDim = 0; iDim < nDim; iDim++) {
+        for (int jDim = 0; jDim < nDim; jDim++) {
+          geometry_container[ZONE_0][INST_0][MESH_0]->nodes->GetGridVel_Grad()[iPoint][iDim][jDim] =
+              GridVel_Grad_Saved[iPoint][iDim][jDim];
+        }
+      }
+    }
   }
 
   // Reload wether simulation should be stopped after current iteration

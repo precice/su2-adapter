@@ -146,28 +146,26 @@ void CIteration::SetGrid_Movement(CGeometry** geometry, CSurfaceMovement* surfac
 
     grid_movement->UpdateMultiGrid(geometry, config);
   }
-  
-  
-  //preCICE
-  if (config->GetSurface_Movement(PRECICE_MOVEMENT))
-  {
-	  //Most of this section just seemed pretty much copied and pasted from the aeroelastic section, so just updated lines doing same
-	  if (rank == MASTER_NODE)
-		  cout << " Deforming the volume grid due to preCICE simulation." << endl;
-	  grid_movement->SetVolume_Deformation(geometry[MESH_0], config, true); // This is where the problem is arising
-	  /*grid_movement[val_iZone]->SetVolume_Deformation(geometry_container[val_iZone][MESH_0],
-													config_container[val_iZone], true);*/
-													
-	  if (rank == MASTER_NODE)
-		cout << " Computing grid velocities by finite differencing due to preCICE simulation." << endl;
-	  geometry[MESH_0]->SetGridVelocity(config);
-	  //geometry_container[val_iZone][MESH_0]->SetGridVelocity(config_container[val_iZone], ExtIter);
 
-	  /*--- Update the multigrid structure after moving the finest grid,
-	   including computing the grid velocities on the coarser levels. ---*/
-	   grid_movement->UpdateMultiGrid(geometry, config);
-	  //grid_movement[val_iZone]->UpdateMultiGrid(geometry_container[val_iZone], config_container[val_iZone]);
+  // preCICE
+  if (config->GetSurface_Movement(PRECICE_MOVEMENT)) {
+    // Most of this section just seemed pretty much copied and pasted from the aeroelastic section, so just updated
+    // lines doing same
+    if (rank == MASTER_NODE) cout << " Deforming the volume grid due to preCICE simulation." << endl;
+    grid_movement->SetVolume_Deformation(geometry[MESH_0], config, true);  // This is where the problem is arising
+    /*grid_movement[val_iZone]->SetVolume_Deformation(geometry_container[val_iZone][MESH_0],
+                                                                                                  config_container[val_iZone],
+       true);*/
 
+    if (rank == MASTER_NODE)
+      cout << " Computing grid velocities by finite differencing due to preCICE simulation." << endl;
+    geometry[MESH_0]->SetGridVelocity(config);
+    // geometry_container[val_iZone][MESH_0]->SetGridVelocity(config_container[val_iZone], ExtIter);
+
+    /*--- Update the multigrid structure after moving the finest grid,
+     including computing the grid velocities on the coarser levels. ---*/
+    grid_movement->UpdateMultiGrid(geometry, config);
+    // grid_movement[val_iZone]->UpdateMultiGrid(geometry_container[val_iZone], config_container[val_iZone]);
   }
 }
 

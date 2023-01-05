@@ -62,7 +62,7 @@ class Precice {
 
   // Variables for storing the old state to reset to in case of an implicit simulation
   unsigned long nPoint;  // Overall number of nodes of the problem
-  int nVar;    // Number of variables of the problem
+  int nVar;              // Number of variables of the problem
   double **Coord_Saved, **Coord_n_Saved, **Coord_n1_Saved, **Coord_p1_Saved, **GridVel_Saved, ***GridVel_Grad_Saved;
   double dt_savedState;
   bool StopCalc_savedState;
@@ -82,8 +82,8 @@ class Precice {
    */
   Precice(const string& preciceConfigurationFileName, const string& preciceParticipantName,
           const string& preciceReadDataName, const string& preciceWriteDataName, const string& preciceMeshName,
-          int solverProcessIndex, int solverProcessSize, CGeometry**** geometry_container, CSolver***** solver_container,
-          CConfig** config_container, CVolumetricMovement*** grid_movement);
+          int solverProcessIndex, int solverProcessSize, CGeometry**** geometry_container,
+          CSolver***** solver_container, CConfig** config_container, CVolumetricMovement*** grid_movement);
 
   /*!
    * \brief Destructor of the class

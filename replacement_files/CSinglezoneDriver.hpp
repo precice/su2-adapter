@@ -32,7 +32,7 @@
 // preCICE
 // This forward declaration of the Precice class is necessary to avoid a cyclic inclusion issue
 class Precice;
-		
+
 /*!
  * \class CSinglezoneDriver
  * \brief Class for driving single-zone solvers.
@@ -40,24 +40,21 @@ class Precice;
  * \version 7.4.0 "Blackbird"
  */
 class CSinglezoneDriver : public CDriver {
-protected:
-
+ protected:
   unsigned long TimeIter;
   /// preCICE
-	bool precice_usage;
-	Precice* precice;
-	double *max_precice_dt, *dt;
-public:
+  bool precice_usage;
+  Precice* precice;
+  double *max_precice_dt, *dt;
 
+ public:
   /*!
    * \brief Constructor of the class.
    * \param[in] confFile - Configuration file name.
    * \param[in] val_nZone - Total number of zones.
    * \param[in] MPICommunicator - MPI communicator for SU2.
    */
-  CSinglezoneDriver(char* confFile,
-             unsigned short val_nZone,
-             SU2_Comm MPICommunicator);
+  CSinglezoneDriver(char* confFile, unsigned short val_nZone, SU2_Comm MPICommunicator);
 
   /*!
    * \brief Destructor of the class.
@@ -92,18 +89,19 @@ public:
   /*!
    * \brief Output the solution in solution file.
    */
-   //preCICE: implemented this fxn as required by child class for virtual function
-  void Output(unsigned long TimeIter) override { };
+  // preCICE: implemented this fxn as required by child class for virtual function
+  void Output(unsigned long TimeIter) override{};
 
-  //preCICE: new Output function to be used instead with additional argument. Adaption such that output is only written if preCICE converged.
-    /*!
+  // preCICE: new Output function to be used instead with additional argument. Adaption such that output is only written
+  // if preCICE converged.
+  /*!
    * \brief Output the solution in solution file.
    */
-   void Output(unsigned long TimeIter, bool suppress_output_by_preCICE);
-   
-   
+  void Output(unsigned long TimeIter, bool suppress_output_by_preCICE);
+
   /*!
-   * \brief Perform a dynamic mesh deformation, included grid velocity computation and the update of the multigrid structure.
+   * \brief Perform a dynamic mesh deformation, included grid velocity computation and the update of the multigrid
+   * structure.
    */
   void DynamicMeshUpdate(unsigned long TimeIter) override;
 
@@ -119,9 +117,9 @@ public:
   bool Monitor(unsigned long TimeIter) override;
 
   /*!
-     * \brief  Returns whether all specified windowed-time-averaged ouputs have been converged
-     * \return Boolean indicating whether the problem is converged.
-     */
+   * \brief  Returns whether all specified windowed-time-averaged ouputs have been converged
+   * \return Boolean indicating whether the problem is converged.
+   */
   virtual bool GetTimeConvergence() const;
 
   /*!
@@ -129,9 +127,9 @@ public:
    */
   virtual void Runtime_Options();
 
-  //preCICE: create new Postprocessing() method to deallocate preCICE variables
+  // preCICE: create new Postprocessing() method to deallocate preCICE variables
   /*!
    * \brief Deallocation routine w/ added deallocation of preCICE variables
    */
-   void Postprocessing();
+  void Postprocessing();
 };
