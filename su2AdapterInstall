@@ -47,7 +47,10 @@ cp ./replacement_files/meson.build $SU2_HOME/SU2_CFD/src || { printf >&2 "Cannot
 printf " done.\n\n"
 
 # Output to guide the user
-printf "\nPlease navigate to the SU2 home directory $SU2_HOME to configure and build SU2 as described in its installation description.\n"
+printf "\nPlease navigate to the SU2 home directory $SU2_HOME to configure and build SU2.\n"
+printf "You must wipe the configuration entirely. The following lines below show how to do this:"
+printf "\n\t\t./meson.py build --wipe (insert all additional settings here)"
+printf "\n\t\t./ninja -C build install\n\n"
 printf "Please enable MPI when configuring SU2.\n\n"
 
 printf "Adapter installation completed.\n\n"
