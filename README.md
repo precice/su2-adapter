@@ -1,87 +1,124 @@
-# SU2-preCICE adapter
+# SU2 Python Wrapper Adapter
 
-The adapter for the CFD-Code "Stanford University Unstructured" (SU2) was developed in the scope of the [bachelor's thesis of Alexander Rusch](https://www5.in.tum.de/pub/Rusch2016_BA.pdf).
-All steps for integrating the adapter into SU2 are described in detail in the appendices of the thesis. Note that by now, the adapter has been extended with new functionalities, which are not covered in the thesis. However, the basic structure of the adapter has remained unchanged and can be studied by means of this work.
-This adapter was developed for SU2 version 6.0.0 "Falcon". Other versions may be compatible as well, yet they have not been tested. Please let us know if you want to use a different version.
+The SU2 adapter now leverages the SU2 Python wrapper and preCICE Python bindings to couple SU2 using preCICE in a minimally invasive way. This adapter simply updates existing functions and implements new ones in the SU2 Python wrapper that allow for simple preCICE implementation with implicit coupling. In addition, Python scripts are provided that can be used to quickly run FSI or CHT, or can serve as templates for your own custom application. This adapter currently works for SU2 versions 7.5.0 and 7.5.1 "Blackbird". Both conjugate heat-transfer and fluid-structure interaction can be completed with this adapter.
+
+This adapter has been designed to work when using the compressible solver for unsteady problems with dual-time stepping, for single-zone problems. Implicit coupling currently saves the flow solution, turbulence solution, and the mesh solution (for mesh deformation). Species transport and transition model variables at this time are not saved, but may be straightforward to implement.
 
 ## Contents
 <!-- toc orderedList:0 -->
 
-- [Building and Usage of the preCICE Adapter for SU2](#building-and-usage-of-the-preCICE-adapter-for-su2)
-    - [Contents](#contents)
-    - [Building the Adapter](#building-the-adapter)
-        - [SU2](#su2)
-        - [preCICE](#precice)
-        - [Adapter](#adapter)
-    - [Running Simulations](#running-simulations)
-        - [SU2 Configuration File](#su2-configuration-file)
-        - [Running the Adapted SU2 Executable](#running-the-adapted-su2-executable)
-    - [References](#references)
+- [Contents](#contents)
+- [Building the Adapter](#building-the-adapter)
+    - [SU2](#su2)
+    - [preCICE](#precice)
+    - [Adapter](#adapter)
+- [Running Simulations](#running-simulations)
+    - [Fluid-Structure Interaction](#fluid-structure-interaction)
+    - [Conjugate Heat Transfer](#conjugate-heat-transfer)
+    - [Running in Parallel](#parallel)
+
 
 <!-- tocstop -->
-
 ## Building the Adapter
-
 ### SU2
-Before installing the adapter SU2 itself must be installed. Download version 6.0.0 directly from https://github.com/su2code/SU2/releases/tag/v6.0.0. Using a different version is not recommended, since the adapter is only tested with this version. If necessary unpack the code and move it to your preferred location. Please do not configure and build the package before installing the adapter. In case you have already used SU2 you will need to rebuild the suite after installing the adapter.
-
-**Troubleshooting**
-
-* If you run `./configure --prefix=$SU2_HOME` and get the error `configure: error: cannot find python-config for /usr/bin/python`, check via `ls /usr/bin` whether there is a `python-config` and/or `python2.7-config`. If not, you can create a symbolic link via `ln /usr/bin/python3-config /usr/bin/python-config` such that `python-config` uses `python3-config`.
+Download SU2 v7.5.1 "Blackbird" from directly from https://github.com/su2code/SU2/releases/tag/v7.5.1. Note that both swig and mpi4py must be installed to use the SU2 Python wrapper. After installing the adapter, the flag `-Denable-pywrapper=true` must be specified.
 
 ### preCICE
-It is assumed that preCICE has been installed successfully beforehand. Concerning installation instructions for preCICE, have a look at the preCICE-wiki pages on GitHub: https://github.com/precice/precice/wiki/Building.
+In addition to having successfully installed preCICE, the preCICE Python bindings must also be installed. For installing preCICE, please navigate to https://precice.org/installation-overview.html. After successfully installing preCICE, please follow the instructions at https://precice.org/installation-bindings-python.html to get the preCICE Python bindings. As a test, run the following command:
+
+        python3 -c "import precice"
+
+If there are no errors, then preCICE and its Python bindings were successfully installed.
 
 ### Adapter
-In order to run SU2 with the preCICE adapter, some SU2-native solver routines need to be changed. The altered SU2 files are provided with this adapter in the directory "replacement_files". Moreover, preCICE-specific files are contained in the directory "adapter_files". These need to be added to the source code of SU2. A simple shell script called *su2AdapterInstall* comes with the adapter, which automates this process and replaces/copies the adapted and preCICE-specific files to the correct locations within the SU2 package including the appropriately adjusted *Makefile* of SU2. For the script to work correctly, the environment variable `SU2_HOME` needs to be set to the location of SU2 (top-level directory).
+In order to couple SU2 using preCICE, *python_wrapper_structure.cpp* and *CDriver.hpp* must be updated. This adapter provides the updated files. The shell script *su2AdapterInstall*, which comes with this adapter, automatically replaces the files in your SU2 directory with these updated files and provides the correct commands to re-configure and re-install SU2 with the added adjustments. For this to work, the `SU2_HOME` variable must be set to your SU2 directory prior to running.
 
-It is recommended to set this variable permanently in your ~/.bashrc (Linux) or ~/.bash_profile (Mac). After setting the variable the script *su2AdapterInstall* can be run from the directory, in which it is contained:
+SU2 will advise you to add this variable (and others) to your ~/.bashrc (Linux) or ~/.bash_profile (Mac) after configuring, so it may already be set if SU2 is already configured and installed on your computer. To install the adapter, run from the adapter directory:
 
-```
-./su2AdapterInstall
-```
+        ./su2AdapterInstall
 
-The script will not execute if the environment variable is not set or empty.
+The script will not execute if the environment variable `SU2_HOME` is not set or empty.
 
 If you do not want to use this script, manually copy the files to the locations given in it. The environment variable needs to be defined as stated above, nevertheless.
 
-After copying the adapter files to the correct locations within the SU2 package, SU2 can be configured and built just like the original version of the solver suite. Please refer to the installation instructions provided with the SU2 source code. SU2 should be built with MPI support in order to make use of parallel functionalities. The script *su2AdapterInstall* states recommended command sequences for both the configuration and the building process upon completion of the execution.
+After copying the adapter files to the correct locations within the SU2 package, SU2 can be configured and built just like the original version of the solver suite. Please refer to the installation instructions provided with the SU2 source code. SU2 should be built with MPI support in order to make use of parallel functionalities and must be built with pywrapper functionality enabled. The script *su2AdapterInstall* states recommended command sequences for both the configuration and the building process upon completion of the execution.
 
-The SU2 executable is linked against the **dynamic library** of preCICE, so make sure you have built it like this.
+To utilize the default FSI and CHT scripts anywhere, add to your ~/.bashrc:
+
+        export PATH="/path/to/adapter/run:$PATH
 
 ## Running Simulations
+After successfully installing the adapted SU2, the default FSI/CHT scripts may be utilized. Note that these scripts currently are designed for a single coupling mesh, called *interface*. However it is extremely easy to update these scripts to handle a different BC name and/or multiple interfaces. They are provided simply for their ease of use.
 
-### SU2 Configuration File
-The adapter is turned on or off via the native SU2 configuration file. If it is turned off, SU2 executes in its original version. Moreover, the adapter is configured in the SU2 configuration file. The following adapter-related options are currently available (default values given in brackets):
+### Fluid-Structure Interaction
+#### SU2 Config File
+To set up a single-interface FSI problem for coupling with preCICE, the SU2 config file should have the following:
 
-1. `PRECICE_USAGE` (NO): Determines whether a preCICE-coupled simulation is run or not.
-2. `PRECICE_VERBOSITYLEVEL_HIGH` (NO): Produces more output, mainly for debugging purposes.
-3. `PRECICE_LOADRAMPING` (NO): Allows to linearly ramp up the load on the structural component at the beginning of the simulation. This may resolve stability issues due to large loads at the beginning of simulations.
-4. `PRECICE_CONFIG_FILENAME` (precice-config.xml): Location and name of the preCICE configuration file.
-5. `PRECICE_PARTICIPANT_NAME` (SU2): Name of the participant in the preCICE configuration file.
-6. `PRECICE_MESH_NAME` (SU2-Mesh): Name of the mesh in the preCICE configuration file.
-7. `PRECICE_READ_DATA_NAME` (Displacements): Name of the read data in the preCICE configuration file.
-8. `PRECICE_WRITE_DATA_NAME` (Forces): Name of the write data in the preCICE configuration file.
-9. `PRECICE_WETSURFACE_MARKER_NAME` (wetSurface): Name of the marker, which identifies the FSI interface in the geometry file of SU2.
-10. `PRECICE_LOADRAMPING_DURATION` (1): Number of time steps, in which the load ramping is active, counting from the beginning of the simulation. The ramped load increases linearly with each time step.
-11. `PRECICE_NUMBER_OF_WETSURFACES` (1): In case multiple FSI-interfaces exist, their count needs to specified here.
+        DEFORM_MESH= YES
+        MARKER_DEFORM_MESH= ( interface )
 
-If multiple interfaces exist, the names of all related entries (`PRECICE_WETSURFACE_MARKER_NAME`, `PRECICE_READ_DATA_NAME`,`PRECICE_WRITE_DATA_NAME`, `PRECICE_MESH_NAME`) must be appended by consecutive numbers. Hence, the names (also in the geometry file) need to be alike differing only by the appending number, which must be successively increasing from zero. E.g. for three interfaces, the marker name could be defined as `PRECICE_WETSURFACE_MARKER_NAME= wetSurface` in the SU2 configuration file, while the markers in the geometry file would need to be named *wetSurface*, *wetSurface1* and *wetSurface2*.
+The *interface* marker should also be set as a wall boundary, such as `MARKER_EULER` or `MARKER_ISOTHERMAL`.
 
-Moreover, in the SU2 configuration file grid movement must be allowed: `GRID_MOVEMENT= YES` and the type of grid movement must be set correctly for preCICE-coupled simulations: `GRID_MOVEMENT_KIND= PRECICE_MOVEMENT`. Also, the boundary, which is allowed to move needs to be specified. Here the name of the FSI-interface marker including its appending identifying number as stated above needs to be used, e.g., `MARKER_MOVING= ( wetSurface0 )`. If multiple FSI-interfaces exist (as in the example above), this may look like `MARKER_MOVING= ( wetSurface, wetSurface1, wetSurface2 )`.
+#### Running the Simulation
+By default in the *SU2_preCICE_FSI.py* script, the following settings are automatically used for coupling with preCICE:
 
-### Running the Adapted SU2 Executable
-Since the adapter (as well as its options) is turned on or off via the SU2 configuration file, the execution procedure is just as for the original version of SU2. For execution with one process working on the fluid domain from the directory, in which both the `SU2_CFD` executable and the SU2 configuration file are located:
+- preCICE Participant Name: *Fluid*
+- preCICE Config File: *../precice-config.xml*
+- preCICE Mesh Name: *Fluid-Mesh*
+- preCICE Read Data: *Displacements*
+- preCICE Write Data: *Forces*
 
-```
-    ./SU2_CFD su2ConfigurationFile.cfg
-```
+To run with these settings:
 
-The adapter is designed such that it can be executed in an intra-parallel manner meaning that the flow domain is decomposed into several parts. The execution is then as follows (again assuming that executable and configuration file are within the current directory; exemplifying a decomposition of the fluid domain with eight processes):
+        SU2_preCICE_FSI.py -f SU2_config_file.cfg --parallel
 
-```
-    mpirun -n 8 ./SU2_CFD su2ConfigurationFile.cfg
-```
+The `--parallel` flag must **always** be used when SU2 is built in parallel, even if running on a single process. If you do not build SU2 with MPI, do not include it.
 
-## References
-[1] Alexander Rusch. Extending SU2 to fluid-structure interaction via preCICE. Bachelor's thesis, Munich School of Engineering, Technical University of Munich, 2016.
+The read/write data are hardcoded, but the participant name, config file, and mesh name can be changed using flags in the call to the Python file. In general, to run an FSI case:
+
+        SU2_preCICE_FSI.py -f SU2_config_file.cfg -p participant_name -c precice_config_file -m precice_mesh_name --parallel
+
+### Conjugate Heat Transfer
+#### SU2 Config File
+To set up a single-interface CHT problem for coupling with preCICE, the SU2 config file should have the following:
+
+        % For having SU2 read temperature, write heat flux:
+        MARKER_ISOTHERMAL= (interface, ______)
+        %
+        % For having SU2 read heat flux, write temperature (the -r flag):
+        MARKER_HEATFLUX= (interface, ______)
+        %
+        % And in both cases include:
+        MARKER_PYTHON_CUSTOM= (interface)
+
+Note that the blank spots in the isothermal and heat flux markers are the initial BC values. If there is a data initialization from another solver, they will be updated and are not important.
+
+#### Running the Simulation
+By default in the *SU2_preCICE_CHT.py* script, the following settings are automatically used for coupling with preCICE:
+
+- preCICE Participant Name: *Fluid*
+- preCICE Config File: *../precice-config.xml*
+- preCICE Mesh Name: *Fluid-Mesh*
+- preCICE Read Data: *Temperature*
+- preCICE Write Data: *Heat-Flux*
+
+To run with these settings:
+
+        SU2_preCICE_CHT.py -f SU2_config_file.cfg --parallel
+
+The `--parallel` flag must **always** be used when SU2 is built in parallel, even if running on a single process. If you do not build SU2 with MPI, do not include it.
+
+The read/write data for CHT can be reversed if the preCICE config file specifies for the fluid to read heat flux and write temperature. This can easily be accomplished with the `-r` flag:
+
+        SU2_preCICE_CHT.py -f SU2_config_file.cfg -r --parallel
+
+The participant name, config file, and mesh name can be changed using flags in the call to the Python file. In general, to run a CHT case:
+
+        SU2_preCICE_CHT.py -f SU2_config_file.cfg -p participant_name -c precice_config_file -m precice_mesh_name --parallel
+
+### Running in Parallel
+The Python scripts can very easily be run in parallel by just pre-pending the Python script call like:
+
+        mpirun -n 8 python3 SU2_preCICE_CHT.py -f SU2_config_file.cfg --parallel
+
+**IMPORTANT NOTE**: As of now, FSI does not work in parallel. This appears to potentially be an issue in SU2 - see the ongoing discussion [here](https://github.com/su2code/SU2/discussions/1931).
