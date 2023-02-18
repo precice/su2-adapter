@@ -199,18 +199,14 @@ def main():
                 DisplZ = 0 if options.nDim == 2 else displacements[i][2]
 
                 SU2Driver.SetMeshDisplacement(MovingMarkerID, iVertex, DisplX, DisplY, DisplZ)
-
+        
+        if options.with_MPI == True:
+            comm.Barrier()
+            
         # Update timestep based on preCICE
         deltaT = SU2Driver.GetUnsteady_TimeStep()
         deltaT = min(precice_deltaT, deltaT)
         SU2Driver.SetUnsteady_TimeStep(deltaT)
-
-        # Add barrier to ensure that all mesh displacements have been set
-        if options.with_MPI:
-            comm.Barrier()
-
-        # Communicate mesh displacements prior to mesh deformation
-        SU2Driver.CommunicateMeshDisplacement()
         
         # Time iteration preprocessing (mesh is deformed here)
         SU2Driver.Preprocess(TimeIter)
@@ -253,7 +249,9 @@ def main():
             # Update control parameters
             TimeIter += 1
             time += deltaT
-
+        
+        if options.with_MPI == True:
+            comm.Barrier()
     # Postprocess the solver and exit cleanly
     SU2Driver.Postprocessing()
 

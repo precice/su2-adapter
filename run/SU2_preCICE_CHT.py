@@ -214,6 +214,9 @@ def main():
       # Tell the SU2 drive to update the boundary conditions
       SU2Driver.BoundaryConditionsUpdate()
 
+    if options.with_MPI == True:
+      comm.Barrier()
+
     # Update timestep based on preCICE
     deltaT = SU2Driver.GetUnsteady_TimeStep()
     deltaT = min(precice_deltaT, deltaT)
@@ -259,6 +262,10 @@ def main():
       TimeIter += 1
       time += deltaT
 
+
+    if options.with_MPI == True:
+      comm.Barrier()
+      
   # Postprocess the solver and exit cleanly
   SU2Driver.Postprocessing()
   
