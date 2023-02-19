@@ -45,7 +45,7 @@ After copying the adapter files to the correct locations within the SU2 package,
 
 To utilize the default FSI and CHT scripts anywhere, add to your ~/.bashrc:
 
-        export PATH="/path/to/adapter/run:$PATH
+        export PATH=/path/to/adapter/run:$PATH
 
 ## Running Simulations
 After successfully installing the adapted SU2, the default FSI/CHT scripts may be utilized. Note that these scripts currently are designed for a single coupling mesh, called *interface*. However it is extremely easy to update these scripts to handle a different BC name and/or multiple interfaces. They are provided simply for their ease of use.
@@ -121,4 +121,4 @@ The Python scripts can very easily be run in parallel by just pre-pending the Py
 
         mpirun -n 8 python3 SU2_preCICE_CHT.py -f SU2_config_file.cfg --parallel
 
-**IMPORTANT NOTE**: As of now, FSI does not work in parallel. This appears to potentially be an issue in SU2 - see the ongoing discussion [here](https://github.com/su2code/SU2/discussions/1931).
+**NOTE**: As of SU2 v7.5.1: Deforming `MARKER_EULER`'s are buggy when simulations are run in parallel, leading to unexpected results. More information can be found at this discussion here: https://github.com/su2code/SU2/discussions/1931.
