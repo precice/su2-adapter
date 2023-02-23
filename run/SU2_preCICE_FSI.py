@@ -93,7 +93,7 @@ def main():
         return
 
     MovingMarkerID = None
-    MovingMarker = 'wetSurface'       #specified by the user
+    MovingMarker = 'interface'       #specified by the user
 
     # Get all the tags with the moving option
     MovingMarkerList =  SU2Driver.GetAllDeformMeshMarkersTag()
