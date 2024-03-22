@@ -36,7 +36,7 @@ If there are no errors, then preCICE and its Python bindings were successfully i
 
 ### Adapter
 
-In order to couple SU2 using preCICE, *python_wrapper_structure.cpp* and *CDriver.hpp* must be updated. This adapter provides the updated files. The shell script *su2AdapterInstall*, which comes with this adapter, automatically replaces the files in your SU2 directory with these updated files and provides the correct commands to re-configure and re-install SU2 with the added adjustments. For this to work, the `SU2_HOME` variable must be set to your SU2 directory prior to running. Set also the `SU2_RUN`, `PATH`, and `PYTHONPATH` variables accordingly. For example: 
+In order to couple SU2 using preCICE, *python_wrapper_structure.cpp* and *CDriver.hpp* must be updated. This adapter provides the updated files. The shell script *su2AdapterInstall*, which comes with this adapter, automatically replaces the files in your SU2 directory with these updated files and provides the correct commands to re-configure and re-install SU2 with the added adjustments. For this to work, the `SU2_HOME` variable must be set to your SU2 directory prior to running. Set also the `SU2_RUN`, `PATH`, and `PYTHONPATH` variables accordingly. For example:
 
 ```shell
 export SU2_HOME="/home/myuser/software/SU2-7.5.1"
@@ -45,7 +45,7 @@ export PATH="${SU2_RUN}:/home/myuser/repos/precice/su2-adapter/run/:$PATH"
 export PYTHONPATH="${SU2_RUN}/bin:${PYTHONPATH}"
 ```
 
-In particular, make sure that `SU2_RUN` points to a directory into which you have write access.
+In particular, make sure that `SU2_RUN` points to a directory into which you have write access. You later will need to pass this to meson with `--prefix`.
 
 SU2 will advise you to add this variable (and others) to your `~/.bashrc` (Linux) or `~/.bash_profile` (Mac) after configuring, so it may already be set if SU2 is already configured and installed on your computer. To install the adapter, run from the adapter directory:
 
@@ -56,6 +56,13 @@ SU2 will advise you to add this variable (and others) to your `~/.bashrc` (Linux
 The script will not execute if the environment variable `SU2_HOME` is not set or empty.
 
 If you do not want to use this script, manually copy the files to the locations given in it. The environment variable needs to be defined as stated above, nevertheless.
+
+The installation script will prompt you to follow commands. Check the output and follow the commands. For example:
+
+```shell
+./meson.py build -Denable-pywrapper=true --prefix=$SU2_RUN
+./ninja -C build install
+```
 
 After copying the adapter files to the correct locations within the SU2 package, SU2 can be configured and built just like the original version of the solver suite. Please refer to the installation instructions provided with the SU2 source code. SU2 should be built with MPI support in order to make use of parallel functionalities and must be built with pywrapper functionality enabled. The script *su2AdapterInstall* states recommended command sequences for both the configuration and the building process upon completion of the execution.
 
