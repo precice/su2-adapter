@@ -169,3 +169,5 @@ mpirun -n 8 python3 SU2_preCICE_CHT.py -f SU2_config_file.cfg --parallel
 ### Further notes
 
 Result files (vtu) generated from SU2 might be incompatible with your ParaView version. For example, ParaView 5.11.2 on Ubuntu 22.04 is known to fail with SU2 7.5.1 result files, but ParaView 5.12 works.
+
+The replacement files included in this repository might be long, but they only introduce minimal changes compared to the original SU2 code. When updating to newer SU2 versions, compare the bundled and the old unmodified files in a diff tool, and start by copying the same changes into the new source.
