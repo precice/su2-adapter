@@ -1,4 +1,4 @@
-# SU2 adapter
+# SU2-preCICE adapter
 
 The SU2 adapter now leverages the SU2 Python wrapper and preCICE Python bindings to couple SU2 using preCICE in a minimally invasive way. This adapter simply updates existing functions and implements new ones in the SU2 Python wrapper that allow for simple preCICE implementation with implicit coupling. In addition, Python scripts are provided that can be used to quickly run FSI or CHT, or can serve as templates for your own custom application. This adapter currently works for SU2 versions 7.5.0 and 7.5.1 "Blackbird". Both conjugate heat-transfer and fluid-structure interaction can be completed with this adapter.
 
