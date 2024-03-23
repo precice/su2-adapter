@@ -4,12 +4,12 @@ The SU2 adapter now leverages the SU2 Python wrapper and preCICE Python bindings
 
 This adapter has been designed to work when using the compressible solver for unsteady problems with dual-time stepping, for single-zone problems. Implicit coupling currently saves the flow solution, turbulence solution, and the mesh solution (for mesh deformation). Species transport and transition model variables at this time are not saved, but may be straightforward to implement.
 
-**Note:** In its current state, the SU2 adapter is using the Python wrapper of SU2. The [previous implementation](https://github.com/precice/su2-adapter/tree/ab843878c1d43302a4f0c66e25dcb364b7787478) was directly editing the C++ source files of SU2.
+**Note:** In its current state, the SU2 adapter is using the Python wrapper of SU2. The [previous implementation](https://github.com/precice/su2-adapter/tree/ab843878c1d43302a4f0c66e25dcb364b7787478) was directly editing the C++ source files of SU2. There is also a [version relying on the Python wrapper that however works with preCICE v2](https://github.com/precice/su2-adapter/tree/6540312608ed1c7e7b690fc48a51ebb3158b4b0c).
 
 <!-- tocstop -->
 ## Building the adapter
 
-The adapter depends on [SU2](https://su2code.github.io/), [preCICE v2](https://precice.org/installation-overview.html), and the [preCICE Python bindings](https://precice.org/installation-bindings-python.html).
+The adapter depends on [SU2](https://su2code.github.io/), [preCICE v3](https://precice.org/installation-overview.html), and the [preCICE Python bindings](https://precice.org/installation-bindings-python.html).
 
 The script `su2AdapterInstall` replaces a few files in the SU2 source code. You then need to build SU2 from source, install it into a prefix (`SU2_RUN`) and add that to your `PATH`.
 
