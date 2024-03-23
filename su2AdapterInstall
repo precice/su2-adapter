@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# This auxiliary script simplifies the installation of the preCICE-adapter for SU2. It copies the adapted SU2-files to the correct locations based on the environment variable SU2_HOME.
-# Author: Alexander Rusch
-# SU2 version: 6.0.0 "Falcon"
 
-# SU2 version for which this adapter was made
-VERSION="6.0.0 \"Falcon\""
+# This auxiliary script simplifies the installation of the preCICE-adapter for SU2. It copies the adapted SU2-files to the correct locations based on the environment variable SU2_HOME.
+# Copied from SU2 Adapter
+# SU2 version: 7.5.1 "Blackbird"
+
+# SU2 versions for which this adapter was made
+VERSIONS="7.5.1 \"Blackbird\"|7.5.0 \"Blackbird\""
 
 # Always run this script from current directory
 cd "$(dirname "$0")"
@@ -16,73 +17,49 @@ printf "\nChecking whether the necessary environment variables are set...\n"
 printf "Necessary environment variables are set.\n"
 
 # Check for SU2 version
-printf "\nChecking whether adapter and SU2 version are compatible..."
-if sed '1,10!d' $SU2_HOME/SU2_CFD/src/SU2_CFD.cpp | grep -Fq "$VERSION"
+printf "\nChecking whether updated adapter and SU2 version are compatible..."
+if sed '1,10!d' $SU2_HOME/SU2_CFD/src/SU2_CFD.cpp | grep -Eq "$VERSION"
 then
     printf " yes.\n"
 else
-    printf " no.\nThis adapter was built for SU2 version $VERSION.\nPlease choose the correct adapter from the SU2-adapter repo.\nAborting.\n"
+    printf " no.\nThis adapter was built using SU2 version $VERSION.\nAborting.\n"
     exit 1;
 fi
 
-# Check for command line tools
-printf "\nChecking whether the necessary tools are available..."
-command -v make >/dev/null 2>&1 || { printf >&2 "\nThe command \"make\" is needed. Please install a respective package and try again.\nAborting.\n"; exit 1; }
-command -v autoreconf >/dev/null 2>&1 || { printf >&2 "\nThe command \"autoreconf\" is needed. Please install a respective package and try again.\nAborting.\n"; exit 1; }
-command -v autoconf >/dev/null 2>&1 || { printf >&2 "\nThe command \"autoconf\" is needed. Please install a respective package and try again.\nAborting.\n"; exit 1; }
-command -v aclocal >/dev/null 2>&1 || { printf >&2 "\nThe command \"aclocal\" is needed. Please install a respective package and try again.\nAborting.\n"; exit 1; }
-command -v automake >/dev/null 2>&1 || { printf >&2 "\nThe command \"automake\" is needed. Please install a respective package and try again.\nAborting.\n"; exit 1; }
-printf " yes.\n\n"
-
 # Replace SU2 files
-printf "Replacing original SU2 files with preCICE-adapter conforming files..."
-cp ./replacement_files/config_structure.cpp $SU2_HOME/Common/src || { printf >&2 "\nCannot copy replacement_files/config_structure.cpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./replacement_files/config_structure.hpp $SU2_HOME/Common/include || { printf >&2 "\nCannot copy replacement_files/config_structure.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./replacement_files/config_structure.inl $SU2_HOME/Common/include || { printf >&2 "\nCannot copy replacement_files/config_structure.inl. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./replacement_files/option_structure.hpp $SU2_HOME/Common/include || { printf >&2 "Cannot copy replacement_files/option_structure.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./replacement_files/iteration_structure.cpp $SU2_HOME/SU2_CFD/src || { printf >&2 "Cannot copy replacement_files/iteration_structure.cpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./replacement_files/driver_structure.hpp $SU2_HOME/SU2_CFD/include || { printf >&2 "Cannot copy replacement_files/driver_structure.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./replacement_files/driver_structure.cpp $SU2_HOME/SU2_CFD/src || { printf >&2 "Cannot copy replacement_files/driver_structure.cpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-printf " done.\n\n"
-
-# Add adapter files
-printf "Adding preCICE adapter files..."
-cp ./adapter_files/precice.cpp $SU2_HOME/SU2_CFD/src || { printf >&2 "Cannot copy adapter_files/precice.cpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./adapter_files/precice.hpp $SU2_HOME/SU2_CFD/include || { printf >&2 "Cannot copy adapter_files/precice.hpp. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-printf " done.\n\n"
-
-# Add additional files
-printf "Adding additional files..."
-cp ./add_files/ax_cxx_compile_stdcxx.m4 $SU2_HOME/m4 || { printf >&2 "Cannot copy add_files/ax_cxx_compile_stdcxx.m4. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-printf " done.\n\n"
-
-# Replace configure and build related files
-printf "Replacing original configure and build related files..."
-cp ./replacement_files/aclocal.m4 $SU2_HOME || { printf >&2 "Cannot copy replacement_files/aclocal.m4. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./replacement_files/configure.ac $SU2_HOME || { printf >&2 "Cannot copy replacement_files/configure.ac. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-cp ./replacement_files/Makefile.am $SU2_HOME/SU2_CFD/obj || { printf >&2 "Cannot copy replacement_files/Makefile.am. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
-printf " done.\n\n"
-
-# Autoreconfigure SU2
-printf "Autoreconfiguring due to the changed configure and build related files..."
-cd $SU2_HOME
-autoreconf
-printf " done.\n\n"
+printf "Replacing files..."
+cp replacement_files/python_wrapper_structure.cpp $SU2_HOME/SU2_CFD/src  || { printf >&2 "\nCannot copy python_wrapper_structure.cpp over. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
+cp replacement_files/CDriver.hpp $SU2_HOME/SU2_CFD/include/drivers  || { printf >&2 "\nCannot copy CDriver.hpp over. Is variable SU2_HOME set correctly? Are you running the script from the correct directory?\nAborting.\n"; exit 1; }
 
 # Output to guide the user
-printf "\nPlease navigate to the SU2 home directory $SU2_HOME to configure and build SU2 as described in its installation description.\n"
-printf "Please enable MPI when configuring SU2.\n\n"
+printf "\nPlease navigate to the SU2 home directory $SU2_HOME to re-configure and build SU2.\nNote that meson must be wiped for changes to take effect.\n\n"
 
-# If user already configured SU2 before, print the command as reminder
-if [ -f $SU2_HOME/config.log ]
+# Check if SU2 has been built before, if so:
+if [[ -f $SU2_HOME/build/meson-logs/meson-log.txt ]]
 then
-    printf "Last time you configured SU2 by invoking:\n"
-    sed '1,10!d' $SU2_HOME/config.log | grep -F "$ ./configure"
-    printf "You may want to reuse this command or adapt it to the following sample:\n"
+    BUILD_LINE=$(grep -P "Build Options: " $SU2_HOME/build/meson-logs/meson-log.txt)
+    BUILD_OPTIONS=$(cut -d ":" -f2 <<< "$BUILD_LINE")
+    PYBUILD_OPTION="-Denable-pywrapper=true"
+
+    printf "Previous build options obtained.\n"
+    printf "To update the build and installation for the adapter, go to $SU2_HOME and run:\n\n\t\t./meson.py build --wipe$BUILD_OPTIONS"
+    
+    if [[ "$BUILD_OPTIONS" != *"$PYBUILD_OPTION"* ]]
+    then
+        printf " $PYBUILD_OPTION"
+    fi
+else
+
+    printf "No previous build detected. To configure with the Python wrapper, navigate to $SU2_HOME and run as follows:\n\n\t\t./meson.py build -Denable-pywrapper=true [insert other build options here]\n"  
 fi
 
-# Sample commands for configuring and making SU2
-printf "A sample SU2 configure procedure might look like: ./configure --prefix=\$SU2_HOME --enable-mpi\n"
-printf "A sample SU2 make procedure might look like: make -j 4\n\n"
+printf "\n\t\t./ninja -C build install\n\n"
 
-printf "Adapter installation completed. Make sure to follow the instructions above to build the adapted SU2.\n\n"
+
+printf "Please ensure MPI is enabled.\n"
+printf "Note that you must have swig and mpi4py installed for the SU2 Python wrapper.\n"
+printf "Also note that you must have the preCICE Python bindings set up as well.\n"
+printf "SU2 adapter successfully installed. To access the default/template FSI + CHT Python scripts, add to your ~/.bashrc:\n\n"
+
+SCRIPT_DIR=$(pwd)
+printf "\t\texport PATH=$SCRIPT_DIR/run:\$PATH\n"
