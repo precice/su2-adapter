@@ -179,9 +179,6 @@ def main():
   # Setup time step sizes:
   precice_deltaT = participant.get_max_time_step_size()
   deltaT = SU2Driver.GetUnsteady_TimeStep()
-  print("====================================")
-  print(precice_deltaT)
-  print(deltaT)
   deltaT = min(precice_deltaT, deltaT)
 
   # Sleep briefly to allow for data initialization to be processed
@@ -217,7 +214,6 @@ def main():
 
     # Update timestep based on preCICE
     deltaT = SU2Driver.GetUnsteady_TimeStep()
-    precice_deltaT = participant.get_max_time_step_size()
     deltaT = min(precice_deltaT, deltaT)
     SU2Driver.SetUnsteady_TimeStep(deltaT)
 
