@@ -36,12 +36,25 @@ If there are no errors, then preCICE and its Python bindings were successfully i
 
 ### Adapter
 
-In order to couple SU2 using preCICE, *python_wrapper_structure.cpp* and *CDriver.hpp* must be updated. This adapter provides the updated files. The shell script *su2AdapterInstall*, which comes with this adapter, automatically replaces the files in your SU2 directory with these updated files and provides the correct commands to re-configure and re-install SU2 with the added adjustments. For this to work, the `SU2_HOME` variable must be set to your SU2 directory prior to running. Set also the `SU2_RUN`, `PATH`, and `PYTHONPATH` variables accordingly. For example:
+In order to couple SU2 using preCICE, *python_wrapper_structure.cpp* and *CDriver.hpp* must be updated. This adapter provides the updated files. The shell script *su2AdapterInstall*, which comes with this adapter, automatically replaces the files in your SU2 directory with these updated files and provides the correct commands to re-configure and re-install SU2 with the added adjustments. For this to work, the `SU2_HOME` variable must be set to your SU2 directory prior to running. Set also the `SU2_RUN`, `PATH`, and `PYTHONPATH` variables accordingly. For example, SU2 will show this message:
+
+```text
+Based on the input to this configuration, add these lines to your .bashrc file:
+
+export SU2_RUN=/home/myuser/software/SU2_RUN/bin
+export SU2_HOME=/home/myuser/software/SU2-7.5.1
+export PATH=$PATH:$SU2_RUN
+export PYTHONPATH=$PYTHONPATH:$SU2_RUN
+
+Use './ninja -C build install' to compile and install SU2
+```
+
+which means you should set:
 
 ```shell
 export SU2_HOME="/home/myuser/software/SU2-7.5.1"
 export SU2_RUN="/home/myuser/software/SU2_RUN"
-export PATH="${SU2_RUN}:/home/myuser/repos/precice/su2-adapter/run/:$PATH"
+export PATH="${SU2_RUN}/bin:/path/to/su2-adapter/run/:$PATH"
 export PYTHONPATH="${SU2_RUN}/bin:${PYTHONPATH}"
 ```
 
