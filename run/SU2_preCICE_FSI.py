@@ -182,12 +182,16 @@ def main():
     if options.with_MPI == True:
         comm.Barrier()
 
+    precice_saved_time = 0
+    precice_saved_iter = 0
     while (interface.is_coupling_ongoing()):#(TimeIter < nTimeIter):
         
         # Implicit coupling
         if (interface.is_action_required(precice.action_write_iteration_checkpoint())):
             # Save the state
             SU2Driver.SaveOldState()
+            precice_saved_time = time
+            precice_saved_iter = TimeIter
             interface.mark_action_fulfilled(precice.action_write_iteration_checkpoint())
 
         if (interface.is_read_data_available()):
@@ -243,6 +247,8 @@ def main():
         if (interface.is_action_required(precice.action_read_iteration_checkpoint())):
             # Reload old state
             SU2Driver.ReloadOldState()
+            time = precice_saved_time
+            TimeIter = precice_saved_iter
             interface.mark_action_fulfilled(precice.action_read_iteration_checkpoint())
         else: # Output and increment as usual
             SU2Driver.Output(TimeIter)
