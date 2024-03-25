@@ -179,9 +179,9 @@ def main():
   if (interface.is_action_required(precice.action_write_initial_data())):
 
     for i, iVertex in enumerate(iVertices_CHTMarker_PHYS):
-      read_data[i] = GetInitialFxn(CHTMarkerID, iVertex)
+      write_data[i] = GetInitialFxn(CHTMarkerID, iVertex)
 
-    interface.write_block_scalar_data(write_data_id, vertex_ids, read_data)
+    interface.write_block_scalar_data(write_data_id, vertex_ids, write_data)
     interface.mark_action_fulfilled(precice.action_write_initial_data())
 
   interface.initialize_data()
