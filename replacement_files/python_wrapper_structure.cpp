@@ -525,7 +525,7 @@ void CDriver::FinalizeMESH_SOL() {
   const bool secondOrder = config_container[ZONE_0]->GetTime_Marching() == TIME_MARCHING::DT_STEPPING_2ND;
   const su2double invTimeStep = 1.0 / config_container[ZONE_0]->GetDelta_UnstTimeND();
 
-  SU2_OMP_FOR_STAT(omp_chunk_size)
+  //SU2_OMP_FOR_STAT(omp_chunk_size) - omp_chunk_size part of CMeshSolver
   for (unsigned long iPoint = 0; iPoint < nPoint; iPoint++) {
 
     /*--- Coordinates of the current point at n+1, n, & n-1 time levels. ---*/
@@ -547,7 +547,7 @@ void CDriver::FinalizeMESH_SOL() {
       geometry_container[ZONE_0][INST_0][MESH_0]->nodes->SetGridVel(iPoint, iDim, GridVel);
     }
   }
-  END_SU2_OMP_FOR
+  //END_SU2_OMP_FOR
 
   for (auto iMGlevel = 1u; iMGlevel <= config_container[ZONE_0]->GetnMGLevels(); iMGlevel++)
     geometry_container[ZONE_0][INST_0][iMGlevel]->SetRestricted_GridVelocity(geometry_container[ZONE_0][INST_0][iMGlevel-1]);
