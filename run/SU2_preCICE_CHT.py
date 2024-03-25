@@ -55,9 +55,11 @@ def main():
   parser.add_option("-c", "--precice-config", dest="precice_config", help="Specify preCICE config file", default="../precice-config.xml")
   parser.add_option("-m", "--precice-mesh", dest="precice_mesh", help="Specify the preCICE mesh name", default="Fluid-Mesh")
   parser.add_option("-r", "--precice-reverse", action="store_true", dest="precice_reverse", help="Include flag to have SU2 write temperature, read heat flux", default=False)
-
+  
+  # Dimension
+  parser.add_option("-d", "--dimension", dest="nDim", help="Dimension of fluid domain", type="int", default=3)
+  
   (options, args) = parser.parse_args()
-  options.nDim = int(2) # Specify dimension here
   options.nZone = int(1) # Specify number of zones here (1)
 
   # Import mpi4py for parallel run

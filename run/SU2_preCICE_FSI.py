@@ -55,8 +55,10 @@ def main():
     parser.add_option("-c", "--precice-config", dest="precice_config", help="Specify preCICE config file", default="../precice-config.xml")
     parser.add_option("-m", "--precice-mesh", dest="precice_mesh", help="Specify the preCICE mesh name", default="Fluid-Mesh")
 
+    # Dimension
+    parser.add_option("-d", "--dimension", dest="nDim", help="Dimension of fluid domain", type="int", default=3)
+  
     (options, args) = parser.parse_args()
-    options.nDim  = int(2)
     options.nZone = int(1)
 
     # Import mpi4py for parallel run
