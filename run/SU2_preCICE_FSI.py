@@ -173,7 +173,10 @@ def main():
     deltaT = min(precice_deltaT, deltaT)
 
     # Sleep briefly to allow for data initialization to be processed
-    sleep(3)
+    # This should not be needed, but open an issue if it is:
+    # https://github.com/precice/su2-adapter/issues
+    #
+    # sleep(3)
 
     # Time loop is defined in Python so that we have acces to SU2 functionalities at each time step
     if rank == 0:
