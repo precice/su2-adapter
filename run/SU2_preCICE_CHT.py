@@ -57,7 +57,7 @@ def main():
   parser.add_option("-r", "--precice-reverse", action="store_true", dest="precice_reverse", help="Include flag to have SU2 write temperature, read heat flux", default=False)
   
   # Dimension
-  parser.add_option("-d", "--dimension", dest="nDim", help="Dimension of fluid domain", type="int", default=3)
+  parser.add_option("-d", "--dimension", dest="nDim", help="Dimension of fluid domain", type="int", default=2)
   
   (options, args) = parser.parse_args()
   options.nZone = int(1) # Specify number of zones here (1)
