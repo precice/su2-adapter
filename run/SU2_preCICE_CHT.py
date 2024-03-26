@@ -57,7 +57,7 @@ def main():
   parser.add_option("-r", "--precice-reverse", action="store_true", dest="precice_reverse", help="Include flag to have SU2 write temperature, read heat flux", default=False)
   
   # Dimension
-  parser.add_option("-d", "--dimension", dest="nDim", help="Dimension of fluid domain", type="int", default=3)
+  parser.add_option("-d", "--dimension", dest="nDim", help="Dimension of fluid domain (2D/3D)", type="int", default=2)
   
   (options, args) = parser.parse_args()
   options.nZone = int(1) # Specify number of zones here (1)
@@ -86,16 +86,17 @@ def main():
   # Configure preCICE:
   size = comm.Get_size()
   try:
-    interface = precice.Interface(options.precice_name, options.precice_config, rank, size)
+    participant = precice.Participant(options.precice_name, options.precice_config, rank, size)
   except:
     print("There was an error configuring preCICE")
     return
   
+  mesh_name = options.precice_mesh
+
   # Check preCICE + SU2 dimensions
-  if options.nDim != interface.get_dimensions():
+  if options.nDim != participant.get_mesh_dimensions(mesh_name):
     print("SU2 and preCICE dimensions are not the same! Exiting")
     return
-
 
   CHTMarkerID = None
   CHTMarker = 'interface' # Name of CHT marker to couple
@@ -128,13 +129,6 @@ def main():
       if not SU2Driver.IsAHaloNode(CHTMarkerID, iVertex):
         iVertices_CHTMarker_PHYS.append(int(iVertex))
 
-  # Get preCICE mesh ID
-  try:
-    mesh_id = interface.get_mesh_id(options.precice_mesh)
-  except:
-    print("Invalid or no preCICE mesh name provided")
-    return
-
   # Get coords of vertices
   coords = numpy.zeros((nVertex_CHTMarker_PHYS, options.nDim))
   for i, iVertex in enumerate(iVertices_CHTMarker_PHYS):
@@ -143,7 +137,11 @@ def main():
       coords[i, iDim] = coord_passive[iDim]
 
   # Set mesh vertices in preCICE:
-  vertex_ids = interface.set_mesh_vertices(mesh_id, coords)
+  try:
+    vertex_ids = participant.set_mesh_vertices(mesh_name, coords)
+  except:
+    print("Could not set mesh vertices for preCICE. Was a (known) mesh specified in the options?")
+    return
 
   # Get read and write data IDs
   precice_read = "Temperature"
@@ -159,9 +157,6 @@ def main():
     SetFxn = SU2Driver.SetVertexNormalHeatFlux
     GetInitialFxn = SU2Driver.GetVertexNormalHeatFlux
 
-  read_data_id = interface.get_data_id(precice_read, mesh_id)
-  write_data_id = interface.get_data_id(precice_write, mesh_id)
-
   # Instantiate arrays to hold temperature + heat flux info
   read_data = numpy.zeros(nVertex_CHTMarker_PHYS)
   write_data = numpy.zeros(nVertex_CHTMarker_PHYS)
@@ -172,21 +167,20 @@ def main():
   nTimeIter = SU2Driver.GetnTimeIter()
   time = TimeIter*deltaT
 
-  # Setup preCICE dt:
-  precice_deltaT = interface.initialize()
-
   # Set up initial data for preCICE
-  if (interface.is_action_required(precice.action_write_initial_data())):
+  if (participant.requires_initial_data()):
 
     for i, iVertex in enumerate(iVertices_CHTMarker_PHYS):
       write_data[i] = GetInitialFxn(CHTMarkerID, iVertex)
 
-    interface.write_block_scalar_data(write_data_id, vertex_ids, write_data)
-    interface.mark_action_fulfilled(precice.action_write_initial_data())
+    participant.write_data(mesh_name, precice_write, vertex_ids, write_data)
 
-  interface.initialize_data()
+  # Initialize preCICE
+  participant.initialize()
 
   # Sleep briefly to allow for data initialization to be processed
+  # This should only be needed on some systems and use cases
+  #
   sleep(3)
 
   # Time loop is defined in Python so that we have access to SU2 functionalities at each time step
@@ -198,26 +192,26 @@ def main():
 
   precice_saved_time = 0
   precice_saved_iter = 0
-  while (interface.is_coupling_ongoing()):
-
+  while (participant.is_coupling_ongoing()):
     # Implicit coupling
-    if (interface.is_action_required(precice.action_write_iteration_checkpoint())):
+    if (participant.requires_writing_checkpoint()):
       # Save the state
       SU2Driver.SaveOldState()
       precice_saved_time = time
       precice_saved_iter = TimeIter
-      interface.mark_action_fulfilled(precice.action_write_iteration_checkpoint())
 
-    if (interface.is_read_data_available()):
-      # Retrieve data from preCICE
-      read_data = interface.read_block_scalar_data(read_data_id, vertex_ids) 
+    # Get the maximum time step size allowed by preCICE
+    precice_deltaT = participant.get_max_time_step_size()
 
-      # Set the updated values
-      for i, iVertex in enumerate(iVertices_CHTMarker_PHYS):
-          SetFxn(CHTMarkerID, iVertex, read_data[i])
+    # Retrieve data from preCICE
+    read_data = participant.read_data(mesh_name, precice_read, vertex_ids, deltaT) 
 
-      # Tell the SU2 drive to update the boundary conditions
-      SU2Driver.BoundaryConditionsUpdate()
+    # Set the updated values
+    for i, iVertex in enumerate(iVertices_CHTMarker_PHYS):
+        SetFxn(CHTMarkerID, iVertex, read_data[i])
+
+    # Tell the SU2 drive to update the boundary conditions
+    SU2Driver.BoundaryConditionsUpdate()
 
     if options.with_MPI == True:
       comm.Barrier()
@@ -242,25 +236,23 @@ def main():
     # Monitor the solver
     stopCalc = SU2Driver.Monitor(TimeIter)
     
-    if (interface.is_write_data_required(deltaT)):
-      # Loop over the vertices
-      for i, iVertex in enumerate(iVertices_CHTMarker_PHYS):
-        # Get heat fluxes at each vertex
-        write_data[i] = GetFxn(CHTMarkerID, iVertex)
-        
-      # Write data to preCICE
-      interface.write_block_scalar_data(write_data_id, vertex_ids, write_data)
+    # Loop over the vertices
+    for i, iVertex in enumerate(iVertices_CHTMarker_PHYS):
+      # Get heat fluxes at each vertex
+      write_data[i] = GetFxn(CHTMarkerID, iVertex)
+      
+    # Write data to preCICE
+    participant.write_data(mesh_name, precice_write, vertex_ids, write_data)
 
     # Advance preCICE
-    precice_deltaT = interface.advance(deltaT)
+    participant.advance(deltaT)
 
     # Implicit coupling:
-    if (interface.is_action_required(precice.action_read_iteration_checkpoint())):
+    if (participant.requires_reading_checkpoint()):
       # Reload old state
       SU2Driver.ReloadOldState()
       time = precice_saved_time
       TimeIter = precice_saved_iter
-      interface.mark_action_fulfilled(precice.action_read_iteration_checkpoint())
     else: # Output and increment as usual
       SU2Driver.Output(TimeIter)
       if (stopCalc == True):
@@ -276,7 +268,7 @@ def main():
   # Postprocess the solver and exit cleanly
   SU2Driver.Postprocessing()
   
-  interface.finalize()
+  participant.finalize()
   
   if SU2Driver != None:
     del SU2Driver
