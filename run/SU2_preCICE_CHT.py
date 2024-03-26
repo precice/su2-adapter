@@ -55,9 +55,11 @@ def main():
   parser.add_option("-c", "--precice-config", dest="precice_config", help="Specify preCICE config file", default="../precice-config.xml")
   parser.add_option("-m", "--precice-mesh", dest="precice_mesh", help="Specify the preCICE mesh name", default="Fluid-Mesh")
   parser.add_option("-r", "--precice-reverse", action="store_true", dest="precice_reverse", help="Include flag to have SU2 write temperature, read heat flux", default=False)
-
+  
+  # Dimension
+  parser.add_option("-d", "--dimension", dest="nDim", help="Dimension of fluid domain", type="int", default=3)
+  
   (options, args) = parser.parse_args()
-  options.nDim = int(2) # Specify dimension here
   options.nZone = int(1) # Specify number of zones here (1)
 
   # Import mpi4py for parallel run
@@ -169,9 +171,9 @@ def main():
   if (participant.requires_initial_data()):
 
     for i, iVertex in enumerate(iVertices_CHTMarker_PHYS):
-      read_data[i] = GetInitialFxn(CHTMarkerID, iVertex)
+      write_data[i] = GetInitialFxn(CHTMarkerID, iVertex)
 
-    participant.write_data(mesh_name, precice_write, vertex_ids, read_data)
+    participant.write_data(mesh_name, precice_write, vertex_ids, write_data)
 
   # Initialize preCICE
   participant.initialize()
@@ -188,12 +190,15 @@ def main():
   if options.with_MPI == True:
     comm.Barrier()
 
-
+  precice_saved_time = 0
+  precice_saved_iter = 0
   while (participant.is_coupling_ongoing()):
     # Implicit coupling
     if (participant.requires_writing_checkpoint()):
       # Save the state
       SU2Driver.SaveOldState()
+      precice_saved_time = time
+      precice_saved_iter = TimeIter
 
     # Get the maximum time step size allowed by preCICE
     precice_deltaT = participant.get_max_time_step_size()
@@ -228,7 +233,7 @@ def main():
     # Update the solver for the next time iteration
     SU2Driver.Update()
     
-    # Monitor the solver and output solution to file if required
+    # Monitor the solver
     stopCalc = SU2Driver.Monitor(TimeIter)
     
     # Loop over the vertices
@@ -246,6 +251,8 @@ def main():
     if (participant.requires_reading_checkpoint()):
       # Reload old state
       SU2Driver.ReloadOldState()
+      time = precice_saved_time
+      TimeIter = precice_saved_iter
     else: # Output and increment as usual
       SU2Driver.Output(TimeIter)
       if (stopCalc == True):

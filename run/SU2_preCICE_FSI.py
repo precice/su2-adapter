@@ -55,8 +55,10 @@ def main():
     parser.add_option("-c", "--precice-config", dest="precice_config", help="Specify preCICE config file", default="../precice-config.xml")
     parser.add_option("-m", "--precice-mesh", dest="precice_mesh", help="Specify the preCICE mesh name", default="Fluid-Mesh")
 
+    # Dimension
+    parser.add_option("-d", "--dimension", dest="nDim", help="Dimension of fluid domain", type="int", default=3)
+  
     (options, args) = parser.parse_args()
-    options.nDim  = int(2)
     options.nZone = int(1)
 
     # Import mpi4py for parallel run
@@ -179,12 +181,16 @@ def main():
     if options.with_MPI == True:
         comm.Barrier()
 
+    precice_saved_time = 0
+    precice_saved_iter = 0
     while (participant.is_coupling_ongoing()):#(TimeIter < nTimeIter):
         
         # Implicit coupling
         if (participant.requires_writing_checkpoint()):
             # Save the state
             SU2Driver.SaveOldState()
+            precice_saved_time = time
+            precice_saved_iter = TimeIter
 
         # Get the maximum time step size allowed by preCICE
         precice_deltaT = participant.get_max_time_step_size()
@@ -220,7 +226,7 @@ def main():
         # Update the solver for the next time iteration
         SU2Driver.Update()
 
-        # Monitor the solver and output solution to file if required
+        # Monitor the solver
         stopCalc = SU2Driver.Monitor(TimeIter)
 
 
@@ -239,6 +245,8 @@ def main():
         if (participant.requires_reading_checkpoint()):
             # Reload old state
             SU2Driver.ReloadOldState()
+            time = precice_saved_time
+            TimeIter = precice_saved_iter
         else: # Output and increment as usual
             SU2Driver.Output(TimeIter)
             if (stopCalc == True):
