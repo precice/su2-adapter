@@ -167,11 +167,6 @@ def main():
     # Initialize preCICE
     participant.initialize()
 
-    # Setup time step sizes:
-    precice_deltaT = participant.get_max_time_step_size()
-    deltaT = SU2Driver.GetUnsteady_TimeStep()
-    deltaT = min(precice_deltaT, deltaT)
-
     # Sleep briefly to allow for data initialization to be processed
     # This should only be needed on some systems and use cases
     #
@@ -190,6 +185,9 @@ def main():
         if (participant.requires_writing_checkpoint()):
             # Save the state
             SU2Driver.SaveOldState()
+
+        # Get the maximum time step size allowed by preCICE
+        precice_deltaT = participant.get_max_time_step_size()
 
         # Retreive data from preCICE
         displacements = participant.read_data(mesh_name, precice_read, vertex_ids, deltaT)
@@ -236,8 +234,6 @@ def main():
 
         # Advance preCICE
         participant.advance(deltaT)
-        precice_deltaT = participant.get_max_time_step_size()
-
 
         # Implicit coupling:
         if (participant.requires_reading_checkpoint()):
