@@ -56,7 +56,7 @@ def main():
     parser.add_option("-m", "--precice-mesh", dest="precice_mesh", help="Specify the preCICE mesh name", default="Fluid-Mesh")
 
     # Dimension
-    parser.add_option("-d", "--dimension", dest="nDim", help="Dimension of fluid domain", type="int", default=2)
+    parser.add_option("-d", "--dimension", dest="nDim", help="Dimension of fluid domain (2D/3D)", type="int", default=2)
   
     (options, args) = parser.parse_args()
     options.nZone = int(1)
