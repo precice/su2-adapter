@@ -1,8 +1,9 @@
 # SU2-preCICE adapter
 
-The SU2 adapter now leverages the SU2 Python wrapper and preCICE Python bindings to couple SU2 using preCICE in a minimally invasive way. This adapter simply updates existing functions and implements new ones in the SU2 Python wrapper that allow for simple preCICE implementation with implicit coupling. In addition, Python scripts are provided that can be used to quickly run FSI or CHT, or can serve as templates for your own custom application. This adapter currently works for SU2 versions 7.5.0 and 7.5.1 "Blackbird". Both conjugate heat-transfer and fluid-structure interaction can be completed with this adapter.
+This is a [preCICE]() adapter for [SU2]() versions 7.5.0 and 7.5.1 "Blackbird",
+including examples for conjugate heat transfer and fluid-structure interation simulations.
 
-This adapter has been designed to work when using the compressible solver for unsteady problems with dual-time stepping, for single-zone problems. Implicit coupling currently saves the flow solution, turbulence solution, and the mesh solution (for mesh deformation). Species transport and transition model variables at this time are not saved, but may be straightforward to implement.
+Read more in the [documentation](https://precice.org/adapter-su2-overview.html).
 
 **Note:** In its current state, the SU2 adapter is using the Python wrapper of SU2. The [previous implementation](https://github.com/precice/su2-adapter/tree/ab843878c1d43302a4f0c66e25dcb364b7787478) was directly editing the C++ source files of SU2. There is also a [version relying on the Python wrapper that however works with preCICE v2](https://github.com/precice/su2-adapter/commit/a87a1ed57e14dca97f1e47aab44632a254714004).
 

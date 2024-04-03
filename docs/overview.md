@@ -6,14 +6,27 @@ keywords: adapter, su2, development, modules
 summary: "Modify native SU2 files to couple with other solvers or SU2 itself"
 ---
 
-## What is this?
+The SU2 adapter leverages the SU2 Python wrapper and preCICE Python bindings to couple SU2 using preCICE in a minimally invasive way. The adapter simply updates existing functions and implements new ones in the SU2 Python wrapper that allow for simple preCICE implementation with implicit coupling. The adapter currently works for SU2 versions 7.5.0 and 7.5.1 "Blackbird".
 
-The SU2-preCICE adapter is an extended version of the compressible SU2 CFD-solver, that allows to couple SU2 to other solvers via preCICE. In the moment it can be used for FSI simulations with any respective CSM-solver that has an adapter to preCICE. The SU2-preCICE adapter represents the Fluid part of the FSI-simulation and is able to write forces to and read displacementdeltas from its structural counterpart via preCICE.
+The adapter can simulate the flow domain in both conjugate heat-transfer and fluid-structure interaction applications. It supports:
+
+- Temperature (read/write)
+- Heat flux (read/write)
+- Force (write)
+- Displacement (read)
+
+while the Python scripts provided in the `run/` directory can easily be adapted for more fields.
+
+This adapter has been designed to work when using the compressible solver for unsteady problems with dual-time stepping, for single-zone problems. Implicit coupling currently saves the flow solution, turbulence solution, and the mesh solution (for mesh deformation). Species transport and transition model variables at this time are not saved, but may be straightforward to implement.
+
+{% note %}
+In its current state, the SU2 adapter is using the Python wrapper of SU2. The [previous implementation](https://github.com/precice/su2-adapter/tree/ab843878c1d43302a4f0c66e25dcb364b7787478) was directly editing the C++ source files of SU2. There is also a [version relying on the Python wrapper that however works with preCICE v2](https://github.com/precice/su2-adapter/commit/a87a1ed57e14dca97f1e47aab44632a254714004).
+{% endnote %}
 
 ## Try
 
 Here you will find how to [get the adapter](adapter-su2-get.html) and [how to configure](adapter-su2-configure.html) a case.
-A tutorial case that uses this adapter is the [perpendicular flap tutorial](tutorials-perpendicular-flap.html).
+Tutorial cases that use this adapter include the [perpendicular flap](tutorials-perpendicular-flap.html) and the [flow over a heated plate](tutorials-flow-over-heated-plate.html).
 
 ## References
 
