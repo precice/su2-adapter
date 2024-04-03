@@ -5,28 +5,59 @@ keywords: adapter, su2, development, modules
 summary: "Get SU2, get preCICE, execute adapter install script"
 ---
 
-### SU2
+The adapter depends on [SU2](https://su2code.github.io/), [preCICE v3](https://precice.org/installation-overview.html), and the [preCICE Python bindings](https://precice.org/installation-bindings-python.html).
 
-Before installing the adapter SU2 itself must be downloaded from [SU2 repository](https://github.com/su2code/SU2). If necessary unpack the code and move it to your preferred location. Please do not configure and build the package before installing the adapter. In case you have already used SU2 you will need to rebuild the suite after installing the adapter.
+The script `su2AdapterInstall` replaces a few files in the SU2 source code. You then need to build SU2 from source, install it into a prefix (`SU2_RUN`) and add that to your `PATH`.
 
-### preCICE
+To run SU2, you can use the provided Python scripts `SU2_preCICE_CHT.py` and `SU2_preCICE_FSI.py`, which call SU2 via its Python interface.
 
-It is assumed that preCICE has been installed successfully beforehand. Concerning installation instructions for preCICE, have a look at the [preCICE installation documentation](../../installation/installation-overview.md)
+## Get the SU2 source
 
-### Adapter
+Download SU2 v7.5.1 "Blackbird" source directly from the [SU2 releases on GitHub](https://github.com/su2code/SU2/releases/tag/v7.5.1). Note that both swig and mpi4py must be installed to use the SU2 Python wrapper, which needs to be enabled using the flag `-Denable-pywrapper=true` when building SU2.
 
-In order to run SU2 with the preCICE adapter, some SU2-native solver routines need to be changed. The altered SU2 files are provided with this adapter in the directory "replacement_files". Moreover, preCICE-specific files are contained in the directory "adapter_files". These need to be added to the source code of SU2. A simple shell script called su2AdapterInstall comes with the adapter, which automates this process and replaces/copies the adapted and preCICE-specific files to the correct locations within the SU2 package including the appropriately adjusted Makefile of SU2. For the script to work correctly, the environment variable `SU2_HOME` needs to be set to the location of SU2 (top-level directory).
+## Build the adapter
 
-{% note %}
-If you run `./configure --prefix=$SU2_HOME` and get the error `configure: error: cannot find python-config for /usr/bin/python`, check via `ls /usr/bin` whether there is a `python-config` and/or `python2.7-config`. If not, you can create a symbolic link via `ln /usr/bin/python3-config /usr/bin/python-config` such that `python-config` uses `python3-config`.
-{% endnote %}
+In order to couple SU2 using preCICE, `python_wrapper_structure.cpp` and `CDriver.hpp` must be updated. This adapter provides the updated files. The shell script `su2AdapterInstall`, which comes with this adapter, automatically replaces the files in your SU2 directory with these updated files and provides the correct commands to re-configure and re-install SU2 with the added adjustments. This script and the build/install procedure rely on a few environment variables. Set the `SU2_HOME` to your SU2 source directory, the `SU2_RUN` to a directory where SU2 will install executable files, and add `SU2_RUN` to your `PATH`, and `PYTHONPATH` variables. For example, SU2 will show this message:
 
-It is recommended to set these variables permanently in your `~/.bashrc` (Linux) or `~/.bash_profile` (Mac). After setting these variables the script `su2AdapterInstall` can be run from the directory, in which it is contained:
-`./su2AdapterInstall`
-The script will not execute if the environment variables are unset or empty.
+```text
+Based on the input to this configuration, add these lines to your .bashrc file:
 
-If you do not want to use this script, manually copy the files to the locations given in it. The two environment variables need to be defined as stated above, nevertheless.
+export SU2_RUN=/home/myuser/software/SU2_RUN/bin
+export SU2_HOME=/home/myuser/software/SU2-7.5.1
+export PATH=$PATH:$SU2_RUN
+export PYTHONPATH=$PYTHONPATH:$SU2_RUN
 
-After copying the adapter files to the correct locations within the SU2 package, SU2 can be configured and built just like the original version of the solver suite. Please refer to the installation instructions provided with the SU2 source code. SU2 should be built with MPI support in order to make use of parallel functionalities. The script su2AdapterInstall states recommended command sequences for both the configuration and the building process upon completion of the execution.
+Use './ninja -C build install' to compile and install SU2
+```
 
-The SU2 executable is linked against the dynamic library of preCICE, so make sure you have built it like this.
+which means you should set:
+
+```shell
+export SU2_RUN="/home/myuser/software/SU2_RUN"
+export SU2_HOME="/home/myuser/software/SU2-7.5.1"
+export PATH="${SU2_RUN}/bin:/path/to/su2-adapter/run/:$PATH"
+export PYTHONPATH="${SU2_RUN}/bin:${PYTHONPATH}"
+```
+
+In particular, make sure that `SU2_RUN` points to a directory into which you have write access. You later will need to pass this to the SU2 build system (meson) with `--prefix`.
+
+To copy the adapter files into `SU2_HOME`, run:
+
+```shell
+./su2AdapterInstall
+```
+
+The installation script will prompt you to follow commands. Check the output and follow the commands. For example:
+
+```shell
+./meson.py build -Denable-pywrapper=true --prefix=$SU2_RUN
+./ninja -C build install
+```
+
+This will trigger the normal building procedure of SU2. Please refer to the installation instructions of SU2 for more details. SU2 should be built with MPI support in order to make use of parallel functionalities and must be built with pywrapper functionality enabled.
+
+To be able to run the FSI and CHT Python scripts included in the adapter from anywhere, add to your `~/.bashrc`:
+
+```shell
+export PATH=/path/to/adapter/run:$PATH
+```
