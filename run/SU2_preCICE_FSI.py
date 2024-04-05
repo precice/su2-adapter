@@ -1,31 +1,13 @@
 #!/usr/bin/env python3
 
-## File edited to work coupled with preCICE - Joseph Signorelli
-
-## \file flatPlate_rigidMotion.py
-#  \brief Python script to launch SU2_CFD with customized unsteady boundary conditions using the Python wrapper.
-#  \author David Thomas
-#  \version 7.5.0 "Blackbird"
+## \file SU2_preCICE_FSI.py
+#  \brief Python script to launch SU2_CFD with preCICE for fluid-structure interation simulations.
+#  \author Joseph Signorelli
+#  \version 7.5.1 "Blackbird"
 #
-# SU2 Project Website: https://su2code.github.io
-#
-# The SU2 Project is maintained by the SU2 Foundation
-# (http://su2foundation.org)
-#
-# Copyright 2012-2022, SU2 Contributors (cf. AUTHORS.md)
-#
-# SU2 is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#
-# SU2 is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with SU2. If not, see <http://www.gnu.org/licenses/>.
+# Part of the SU2-preCICE adapter: https://github.com/precice/su2-adapter
+# This adapter is distributed under the GNU Lesser General Public
+# License (see LICENSE file).
 
 # ----------------------------------------------------------------------
 #  Imports

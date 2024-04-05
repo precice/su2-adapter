@@ -1,6 +1,6 @@
 # SU2-preCICE adapter
 
-This is a [preCICE](https://precice.org/) adapter for [SU2](https://su2code.github.io/) versions 7.5.0 and 7.5.1 "Blackbird",
+This is a [preCICE](https://precice.org/) adapter for [SU2](https://su2code.github.io/) version 7.5.1 "Blackbird",
 including examples for conjugate heat transfer and fluid-structure interation simulations.
 
 Read more in the [documentation](https://precice.org/adapter-su2-overview.html).

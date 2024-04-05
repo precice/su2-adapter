@@ -6,7 +6,7 @@ keywords: adapter, su2, development, modules
 summary: "Modify native SU2 files to couple with other solvers or SU2 itself"
 ---
 
-The [SU2 adapter](https://github.com/precice/su2-adapter) leverages the SU2 Python wrapper and preCICE Python bindings to couple SU2 using preCICE in a minimally invasive way. The adapter simply updates existing functions and implements new ones in the SU2 Python wrapper that allow for simple preCICE implementation with implicit coupling. The adapter currently works for SU2 versions 7.5.0 and 7.5.1 "Blackbird".
+The [SU2 adapter](https://github.com/precice/su2-adapter) leverages the SU2 Python wrapper and preCICE Python bindings to couple SU2 using preCICE in a minimally invasive way. The adapter simply updates existing functions and implements new ones in the SU2 Python wrapper that allow for simple preCICE implementation with implicit coupling. The adapter currently works for SU2 version 7.5.1 "Blackbird".
 
 The adapter can simulate the flow domain in both conjugate heat-transfer and fluid-structure interaction applications. It supports:
 
