@@ -165,6 +165,13 @@ def main():
 
     precice_saved_time = 0
     precice_saved_iter = 0
+
+    # Patch for su2code/SU2#2353
+    if (TimeIter == 0):
+        SU2Driver.Output(TimeIter)
+        TimeIter += 1
+        time += deltaT
+
     while (participant.is_coupling_ongoing()):#(TimeIter < nTimeIter):
         
         # Implicit coupling
