@@ -30,4 +30,8 @@ Tutorial cases that use this adapter include the [perpendicular flap](tutorials-
 
 ## References
 
-[1] Alexander Rusch. [Extending SU2 to Fluid-Structure Interaction via preCICE](http://www5.in.tum.de/pub/Rusch2016_BA.pdf). Bachelor's thesis, Munich School of Engineering, Technical University of Munich, 2016.
+For the SU2 v7.5.1 adapter:
+[1] Joseph M. Signorelli, Ian R. Higgins, Samuel A. Maszkiewicz, Stuart Laurence and Daniel J. Bodony. "Hypersonic Aerothermal Computations of a Sharp Fin Interaction," AIAA 2024-3548. AIAA AVIATION FORUM AND ASCEND 2024. July 2024.
+
+For the SU2 v6.0.0 adapter:
+[2] Alexander Rusch. [Extending SU2 to Fluid-Structure Interaction via preCICE](http://www5.in.tum.de/pub/Rusch2016_BA.pdf). Bachelor's thesis, Munich School of Engineering, Technical University of Munich, 2016.
