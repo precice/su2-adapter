@@ -130,14 +130,12 @@ def main():
   precice_write = "Heat-Flux"
   GetFxn = lambda *args: -1*SU2Driver.GetVertexNormalHeatFlux(*args)
   SetFxn = SU2Driver.SetVertexTemperature
-  GetInitialFxn = SU2Driver.GetVertexTemperature
   # Reverse coupling data read/write if -r flag included
   if options.precice_reverse:
     precice_read = "Heat-Flux"
     precice_write = "Temperature"
     GetFxn = SU2Driver.GetVertexTemperature
     SetFxn = SU2Driver.SetVertexNormalHeatFlux
-    GetInitialFxn = lambda *args: -1*SU2Driver.GetVertexNormalHeatFlux(*args)
 
   # Instantiate arrays to hold temperature + heat flux info
   read_data = numpy.zeros(nVertex_CHTMarker_PHYS)
@@ -153,7 +151,7 @@ def main():
   if (participant.requires_initial_data()):
 
     for i, iVertex in enumerate(iVertices_CHTMarker_PHYS):
-      write_data[i] = GetInitialFxn(CHTMarkerID, iVertex)
+      write_data[i] = GetFxn(CHTMarkerID, iVertex)
 
     participant.write_data(mesh_name, precice_write, vertex_ids, write_data)
 
