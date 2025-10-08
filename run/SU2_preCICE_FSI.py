@@ -211,6 +211,10 @@ def main():
         # Monitor the solver
         stopCalc = SU2Driver.Monitor(TimeIter)
 
+        # Update control parameters
+        TimeIter += 1
+        time += deltaT
+
         # Loop over the vertices
         for i, iVertex in enumerate(iVertices_MovingMarker_PHYS):
             # Get forces at each vertex
@@ -233,9 +237,6 @@ def main():
             SU2Driver.Output(TimeIter)
             if (stopCalc == True):
                 break
-            # Update control parameters
-            TimeIter += 1
-            time += deltaT
 
         if options.with_MPI == True:
             comm.Barrier()
