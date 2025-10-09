@@ -126,16 +126,17 @@ def main():
     return
 
   # Get read and write data IDs
-  precice_read = "Temperature"
-  precice_write = "Heat-Flux"
-  GetFxn = lambda *args: -1*SU2Driver.GetVertexNormalHeatFlux(*args)
-  SetFxn = SU2Driver.SetVertexTemperature
   # Reverse coupling data read/write if -r flag included
   if options.precice_reverse:
     precice_read = "Heat-Flux"
     precice_write = "Temperature"
     GetFxn = SU2Driver.GetVertexTemperature
     SetFxn = SU2Driver.SetVertexNormalHeatFlux
+  else:
+    precice_read = "Temperature"
+    precice_write = "Heat-Flux"
+    GetFxn = lambda *args: -1*SU2Driver.GetVertexNormalHeatFlux(*args)
+    SetFxn = SU2Driver.SetVertexTemperature
 
   # Instantiate arrays to hold temperature + heat flux info
   read_data = numpy.zeros(nVertex_CHTMarker_PHYS)
