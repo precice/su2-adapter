@@ -125,14 +125,15 @@ def main():
     print("Could not set mesh vertices for preCICE. Was a (known) mesh specified in the options?")
     return
 
-  # Get read and write data IDs
-  # Reverse coupling data read/write if -r flag included
+  # Get read and write data
   if options.precice_reverse:
+    # Reverse coupling data read/write if -r flag included
     precice_read = "Heat-Flux"
     precice_write = "Temperature"
     GetFxn = SU2Driver.GetVertexTemperature
     SetFxn = SU2Driver.SetVertexNormalHeatFlux
   else:
+    # Default assumption: reading temperature, writing heat flux as going out of the fluid
     precice_read = "Temperature"
     precice_write = "Heat-Flux"
     GetFxn = lambda *args: -1*SU2Driver.GetVertexNormalHeatFlux(*args)
