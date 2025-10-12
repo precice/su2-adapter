@@ -125,19 +125,19 @@ def main():
     print("Could not set mesh vertices for preCICE. Was a (known) mesh specified in the options?")
     return
 
-  # Get read and write data IDs
-  precice_read = "Temperature"
-  precice_write = "Heat-Flux"
-  GetFxn = SU2Driver.GetVertexNormalHeatFlux
-  SetFxn = SU2Driver.SetVertexTemperature
-  GetInitialFxn = SU2Driver.GetVertexTemperature
-  # Reverse coupling data read/write if -r flag included
+  # Get read and write data
   if options.precice_reverse:
+    # Reverse coupling data read/write if -r flag included
     precice_read = "Heat-Flux"
     precice_write = "Temperature"
     GetFxn = SU2Driver.GetVertexTemperature
     SetFxn = SU2Driver.SetVertexNormalHeatFlux
-    GetInitialFxn = SU2Driver.GetVertexNormalHeatFlux
+  else:
+    # Default assumption: reading temperature, writing heat flux as going out of the fluid
+    precice_read = "Temperature"
+    precice_write = "Heat-Flux"
+    GetFxn = lambda *args: -1*SU2Driver.GetVertexNormalHeatFlux(*args)
+    SetFxn = SU2Driver.SetVertexTemperature
 
   # Instantiate arrays to hold temperature + heat flux info
   read_data = numpy.zeros(nVertex_CHTMarker_PHYS)
@@ -153,7 +153,7 @@ def main():
   if (participant.requires_initial_data()):
 
     for i, iVertex in enumerate(iVertices_CHTMarker_PHYS):
-      write_data[i] = GetInitialFxn(CHTMarkerID, iVertex)
+      write_data[i] = GetFxn(CHTMarkerID, iVertex)
 
     participant.write_data(mesh_name, precice_write, vertex_ids, write_data)
 
