@@ -61,3 +61,21 @@ To be able to run the FSI and CHT Python scripts included in the adapter from an
 ```shell
 export PATH=/path/to/adapter/run:$PATH
 ```
+
+## Troubleshooting
+
+On some newer systems (e.g., on Ubuntu 24.04), some file changes are required for SU2 7.5.1 "Blackbird":
+
+```diff
+--- a/SU2_CFD/src/output/filewriter/CParaviewXMLFileWriter.cpp
++++ b/SU2_CFD/src/output/filewriter/CParaviewXMLFileWriter.cpp
+@@ -27,7 +27,7 @@
+ 
+ #include "../../../include/output/filewriter/CParaviewXMLFileWriter.hpp"
+ #include "../../../../Common/include/toolboxes/printing_toolbox.hpp"
+-
++#include <cstdint>
+ const string CParaviewXMLFileWriter::fileExt = ".vtu";
+```
+
+and the python packages `mpi4py` and `swig` need to be loaded in the same virtual environment to complete the installation.
