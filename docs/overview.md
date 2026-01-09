@@ -20,7 +20,7 @@ while the Python scripts provided in the `run/` directory can easily be adapted 
 This adapter has been designed to work when using the compressible solver for unsteady problems with dual-time stepping, for single-zone problems. Implicit coupling currently saves the flow solution, turbulence solution, and the mesh solution (for mesh deformation). Species transport and transition model variables at this time are not saved, but may be straightforward to implement.
 
 {% note %}
-In its current state, the SU2 adapter is using the Python wrapper of SU2. The [previous implementation](https://github.com/precice/su2-adapter/tree/ab843878c1d43302a4f0c66e25dcb364b7787478) was directly implementing the adapter in the C++ source files of SU2. There is also a [version relying on the Python wrapper that however works with preCICE v2](https://github.com/precice/su2-adapter/commit/a87a1ed57e14dca97f1e47aab44632a254714004). If you are looking for the documentation of the previous adapter, get the PDF export of the preCICE website from the [preCICE Distribution v2211.0](https://precice.org/installation-distribution.html#v22110).
+In its current state, the SU2 adapter is using the Python wrapper of SU2. The [previous implementation](https://github.com/precice/su2-adapter/tree/ab843878c1d43302a4f0c66e25dcb364b7787478) was directly implementing the adapter in the C++ source files of SU2. There is also a previous, [unreleased version for preCICE v2](https://github.com/precice/su2-adapter/commit/a87a1ed57e14dca97f1e47aab44632a254714004). If you are looking for the documentation of the previous adapter, get the PDF export of the preCICE website from the [preCICE Distribution v2211.0](https://precice.org/installation-distribution.html#v22110).
 {% endnote %}
 
 ## Try
