@@ -7,7 +7,7 @@ summary: "Get SU2, get preCICE, execute adapter install script"
 
 The adapter depends on [SU2](https://su2code.github.io/), [preCICE v3](https://precice.org/installation-overview.html), and the [preCICE Python bindings](https://precice.org/installation-bindings-python.html).
 
-The script `su2AdapterInstall` replaces a few files in the SU2 source code. You then need to build SU2 from source, install it into a prefix (`SU2_RUN`) and add that to your `PATH`.
+The script `su2AdapterInstall` replaces a few files in the SU2 source code ([details](https://github.com/precice/su2-adapter/issues/41#issue-2241425543)). You then need to build SU2 from source, install it into a prefix (`SU2_RUN`) and add that to your `PATH`.
 
 To run SU2, you can use the provided Python scripts `SU2_preCICE_CHT.py` and `SU2_preCICE_FSI.py`, which call SU2 via its Python interface.
 
@@ -61,3 +61,30 @@ To be able to run the FSI and CHT Python scripts included in the adapter from an
 ```shell
 export PATH=/path/to/adapter/run:$PATH
 ```
+
+## Troubleshooting
+
+On some newer systems (e.g., on Ubuntu 24.04), this error might appear when building SU2 7.5.1 "Blackbird":
+
+```log
+../SU2_CFD/src/output/filewriter/CParaviewXMLFileWriter.cpp: In member function ‘virtual void CParaviewXMLFileWriter::Write_Data(std::string)’:
+../SU2_CFD/src/output/filewriter/CParaviewXMLFileWriter.cpp:240:10: error: ‘uint8_t’ was not declared in this scope
+  240 |   vector<uint8_t> typeBuf(myElem);
+      |          ^~~~~~~
+```
+
+To fix it, patch the following file:
+
+```diff
+--- a/SU2_CFD/src/output/filewriter/CParaviewXMLFileWriter.cpp
++++ b/SU2_CFD/src/output/filewriter/CParaviewXMLFileWriter.cpp
+@@ -27,7 +27,7 @@
+ 
+ #include "../../../include/output/filewriter/CParaviewXMLFileWriter.hpp"
+ #include "../../../../Common/include/toolboxes/printing_toolbox.hpp"
+-
++#include <cstdint>
+ const string CParaviewXMLFileWriter::fileExt = ".vtu";
+```
+
+and load the python packages `mpi4py` and `swig` in the same virtual environment.
