@@ -7,7 +7,7 @@ summary: "Get SU2, get preCICE, execute adapter install script"
 
 The adapter depends on [SU2](https://su2code.github.io/), [preCICE v3](https://precice.org/installation-overview.html), and the [preCICE Python bindings](https://precice.org/installation-bindings-python.html).
 
-The script `su2AdapterInstall` replaces a few files in the SU2 source code. You then need to build SU2 from source, install it into a prefix (`SU2_RUN`) and add that to your `PATH`.
+The script `su2AdapterInstall` replaces a few files in the SU2 source code ([details](https://github.com/precice/su2-adapter/issues/41#issue-2241425543)). You then need to build SU2 from source, install it into a prefix (`SU2_RUN`) and add that to your `PATH`.
 
 To run SU2, you can use the provided Python scripts `SU2_preCICE_CHT.py` and `SU2_preCICE_FSI.py`, which call SU2 via its Python interface.
 
