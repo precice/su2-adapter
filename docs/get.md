@@ -64,7 +64,16 @@ export PATH=/path/to/adapter/run:$PATH
 
 ## Troubleshooting
 
-On some newer systems (e.g., on Ubuntu 24.04), some file changes are required for SU2 7.5.1 "Blackbird":
+On some newer systems (e.g., on Ubuntu 24.04), this error might appear when building SU2 7.5.1 "Blackbird":
+
+```log
+../SU2_CFD/src/output/filewriter/CParaviewXMLFileWriter.cpp: In member function ‘virtual void CParaviewXMLFileWriter::Write_Data(std::string)’:
+../SU2_CFD/src/output/filewriter/CParaviewXMLFileWriter.cpp:240:10: error: ‘uint8_t’ was not declared in this scope
+  240 |   vector<uint8_t> typeBuf(myElem);
+      |          ^~~~~~~
+```
+
+To fix it, patch the following file:
 
 ```diff
 --- a/SU2_CFD/src/output/filewriter/CParaviewXMLFileWriter.cpp
@@ -78,4 +87,4 @@ On some newer systems (e.g., on Ubuntu 24.04), some file changes are required fo
  const string CParaviewXMLFileWriter::fileExt = ".vtu";
 ```
 
-and the python packages `mpi4py` and `swig` need to be loaded in the same virtual environment to complete the installation.
+and load the python packages `mpi4py` and `swig` in the same virtual environment.
