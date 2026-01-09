@@ -105,7 +105,9 @@ mpirun -n 8 python3 SU2_preCICE_CHT.py -f SU2_config_file.cfg --parallel
 As of SU2 v7.5.1: Deforming `MARKER_EULER`'s are buggy when simulations are run in parallel, leading to unexpected results. More information can be found at [this SU2 discussion](https://github.com/su2code/SU2/discussions/1931).
 {% endnote %}
 
-## Important note on restarts
+## Important notes
+
+It is strongly recommended use a restart file like `restart_000000.dat` as an initial condition as opposed to default initialization. Because dual-timestepping is an implicit scheme, any time-dependent components should be evaluated at the $t_{n+1}$ state, and this is ensured by using a restart file as the initial condition. Otherwise, they are computed at $t_n$. See [su2code/SU2#2353](https://github.com/su2code/SU2/issues/2353) for more information. With this approach, an output file with iteration suffix $N$ represents the solution data at time $N\Delta t$ (ie: `restart_000010.dat` is the solution data at $t=10\Delta t)$.
 
 This code **has not been tested** for restarts using initializations *from* SU2. Any restarted simulations should have SU2 be the first participant and receive initialization data. It is possible that, if SU2 must send initialization data, that it is incorrect (it may use default values in the config file, or just be zeros if the data hasn't been computed until after/during a first iteration). Admittedly, this is from a lack of understanding of the specifics of how SU2 operates and there may not be a trivial work-around.
 
