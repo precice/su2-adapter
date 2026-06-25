@@ -1,6 +1,7 @@
 ---
 title: Build the adapter
 permalink: adapter-su2-get.html
+url: /adapter-su2-get.html
 keywords: adapter, su2, development, modules
 summary: "Get SU2, get preCICE, execute adapter install script"
 ---
