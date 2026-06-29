@@ -1,10 +1,10 @@
 ---
 title: The SU2 adapter
 permalink: adapter-su2-overview.html
-url: /adapter-su2-overview.html
-redirect_from: adapter-su2.html
 aliases:
+  - /adapter-su2-overview.html
   - /adapter-su2.html
+redirect_from: adapter-su2.html
 keywords: adapter, su2, development, modules
 summary: "Modify native SU2 files to couple with other solvers or SU2 itself"
 ---
